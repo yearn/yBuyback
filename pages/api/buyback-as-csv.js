@@ -7,7 +7,7 @@ export default async function handler(_, res) {
 	const	fields = ['id', 'timestamp', 'yfiAmount', 'usdValue', 'tokenAmount', 'token', 'hash'];
 	try {
 		const	parser = new Parser({fields});
-		const	csv = parser.parse(data.map((e, index) => ({id: index, ...e})));
+		const	csv = parser.parse(data);
 		res.setHeader('Content-Type', 'application/csv');
 		res.setHeader('Content-Disposition', 'attachment; filename=yfi-buyback.csv');
 		res.status(200).send(csv);
