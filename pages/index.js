@@ -20,7 +20,7 @@ function	RowHead({sortBy, set_sortBy}) {
 				</div>
 			</div>
 			<div className={'pr-8'}>
-				<div className={'flex flex-row items-center w-42'}>
+				<div className={'flex flex-row justify-end items-center w-42'}>
 					<p className={'pr-1 text-gray-blue-1'}>{'YFI Amount'}</p>
 					<div
 						onClick={() => set_sortBy(n => n === 'yfi' ? '-yfi' : n === '-yfi' ? '' : 'yfi')}
@@ -30,7 +30,7 @@ function	RowHead({sortBy, set_sortBy}) {
 				</div>
 			</div>
 			<div className={'pr-6'}>
-				<div className={'flex flex-row items-center w-38'}>
+				<div className={'flex flex-row justify-end items-center w-38'}>
 					<p className={'pr-1 text-gray-blue-1'}>{'Value'}</p>
 					<div
 						onClick={() => set_sortBy(n => n === 'value' ? '-value' : n === '-value' ? '' : 'value')}
@@ -40,7 +40,7 @@ function	RowHead({sortBy, set_sortBy}) {
 				</div>
 			</div>
 			<div className={'pr-6'}>
-				<div className={'w-50 text-gray-blue-1'}>{'Amount'}</div>
+				<div className={'w-50 text-right text-gray-blue-1'}>{'Amount'}</div>
 			</div>
 			<div className={'pr-8'}>
 				<div className={'w-28 text-gray-blue-1'}>{'Token'}</div>
@@ -60,13 +60,13 @@ function	Row({row}) {
 				<div className={'w-42 tabular-nums text-gray-blue-1'}>{formatDate(new Date(row?.timestamp?.replace(/-/g, '/') || ''))}</div>
 			</div>
 			<div className={'mr-8'}>
-				<div className={'w-42 tabular-nums text-gray-blue-1'}>{formatAmount(row.yfiAmount, 12)}</div>
+				<div className={'w-42 tabular-nums text-right text-gray-blue-1'}>{formatAmount(row.yfiAmount, 12, 8)}</div>
 			</div>
 			<div className={'mr-6'}>
-				<div className={'w-38 tabular-nums text-gray-blue-1'}>{`$ ${formatAmount(row.usdValue)}`}</div>
+				<div className={'w-38 tabular-nums text-right text-gray-blue-1'}>{`$ ${formatAmount(row.usdValue)}`}</div>
 			</div>
 			<div className={'mr-6'}>
-				<div className={'w-50 tabular-nums text-gray-blue-1'}>{formatAmount(row.tokenAmount, 12)}</div>
+				<div className={'w-50 tabular-nums text-right text-gray-blue-1'}>{formatAmount(row.tokenAmount, 12)}</div>
 			</div>
 			<div className={'mr-8'}>
 				<div className={'w-28 text-gray-blue-1'}>{row.token}</div>
@@ -117,10 +117,10 @@ function	RowFooter({data}) {
 				<div className={'w-42 font-bold tabular-nums text-dark-blue-1'}>{'Total'}</div>
 			</div>
 			<div className={'mr-8'}>
-				<div className={'w-42 font-bold tabular-nums text-dark-blue-1'}>{`${formatAmount(sum(...data.map(e => e.yfiAmount)), 12)} YFI`}</div>
+				<div className={'w-42 font-bold tabular-nums text-right text-dark-blue-1'}>{`YFI ${formatAmount(sum(...data.map(e => e.yfiAmount)), 12, 8)}`}</div>
 			</div>
 			<div className={'mr-6'}>
-				<div className={'w-38 font-bold tabular-nums text-dark-blue-1'}>{`$ ${formatAmount(sum(...data.map(e => e.usdValue)), 2)}`}</div>
+				<div className={'w-38 font-bold tabular-nums text-right text-dark-blue-1'}>{`$ ${formatAmount(sum(...data.map(e => e.usdValue)), 2)}`}</div>
 			</div>
 			<div className={'mr-6'}>
 				<div className={'w-50'}>{''}</div>
