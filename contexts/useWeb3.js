@@ -33,7 +33,7 @@ export const Web3ContextApp = ({children}) => {
 	const	[chainID, set_chainID] = useLocalStorage('chainID', -1);
 	const	[lastWallet, set_lastWallet] = useLocalStorage('lastWallet', walletType.NONE);
 	const	[, set_nonce] = React.useState(0);
-	const	[disableAutoChainChange, set_disableAutoChainChange] = React.useState(false);
+	const	[disableAutoChainChange, set_disableAutoChainChange] = React.useState(true);
 	const	[disconnected, set_disconnected] = React.useState(false);
 	const	[modalLoginOpen, set_modalLoginOpen] = React.useState(false);
 	const	debouncedChainID = useDebounce(chainID, 500);

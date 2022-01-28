@@ -1,7 +1,5 @@
 import	React					from	'react';
 import	FlipMove				from	'react-flip-move';
-import	usePrices				from	'contexts/usePrices';
-import	useWeb3					from	'contexts/useWeb3';
 import	IconCopy				from	'components/icons/IconCopy';
 import	IconArrowDown			from	'components/icons/IconArrowDown';
 import	BUYBACKS				from	'public/buybacks.json';
@@ -96,7 +94,7 @@ function	RowFooter({data}) {
 				<div className={'w-42 font-bold tabular-nums text-dark-blue-1'}>{'Total'}</div>
 			</div>
 			<div className={'mr-8'}>
-				<div className={'w-42 font-bold tabular-nums text-dark-blue-1'}>{formatAmount(sum(...data.map(e => e.yfiAmount)), 12)}</div>
+				<div className={'w-42 font-bold tabular-nums text-dark-blue-1'}>{`${formatAmount(sum(...data.map(e => e.yfiAmount)), 12)} YFI`}</div>
 			</div>
 			<div className={'mr-6'}>
 				<div className={'w-38 font-bold tabular-nums text-dark-blue-1'}>{`$ ${formatAmount(sum(...data.map(e => e.usdValue)), 2)}`}</div>
@@ -119,8 +117,6 @@ function	RowFooter({data}) {
 }
 
 function	Index() {
-	const	{prices} = usePrices();
-	const	{active, address, ens, openLoginModal, deactivate, onDesactivate} = useWeb3();
 	const	[sortBy, set_sortBy] = React.useState('time');
 	const	[sortedData, set_sortedData] = React.useState([...BUYBACKS].reverse());
 
@@ -138,37 +134,7 @@ function	Index() {
 	}, [sortBy]);
 
 	return (
-		<div className={'w-full'}>
-			<div className={'flex justify-between items-center p-6 my-4 w-full h-20 bg-white rounded-sm'}>
-				<div className={'flex flex-row items-center'}>
-					<h2 className={'mr-4 text-lg font-bold text-dark-blue-1'}>
-						{'YFI Buyback'}
-					</h2>
-					<p className={'text-xs text-gray-blue-1'}>
-						{`Last update: ${formatDate(new Date(BUYBACKS[BUYBACKS.length - 1].timestamp))}`}
-					</p>
-				</div>
-				<div className={'flex flex-row items-center space-x-6'}>
-					<p className={'text-yearn-blue'}>{`YFI $ ${formatAmount(prices?.['yearn-finance']?.usd || 0, 2)}`}</p>
-					<p className={'text-yearn-blue'}>{'Balance: 0 YFI'}</p>
-					<a href={'https://cowswap.exchange/#/swap?outputCurrency=0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e'} target={'_blank'} rel={'noreferrer'}>
-						<button className={'button-small button-light'}>{'Buy YFI'}</button>
-					</a>
-					<button
-						onClick={() => {
-							if (active) {
-								deactivate();
-								onDesactivate();
-							} else {
-								openLoginModal();
-							}
-						}}
-						className={'truncate button-small button-light'}>
-						{!active ? 'Connect wallet' : ens ? ens : truncateHex(address, 4)}
-					</button>
-				</div>
-			</div>
-
+		<div className={'mt-4 w-full'}>
 			<div>
 				<RowHead sortBy={sortBy} set_sortBy={set_sortBy} />
 				<FlipMove duration={250} easing={'ease-in-out'} enterAnimation={'none'}>

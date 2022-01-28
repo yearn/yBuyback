@@ -8,6 +8,7 @@ import	{UIContextApp}				from	'contexts/useUI';
 import	{PricesContextApp}			from	'contexts/usePrices';
 import	{LocalizationContextApp}	from 	'contexts/useLocalization';
 import	{Web3ContextApp}			from	'contexts/useWeb3';
+import	Header						from	'components/StandardHeader';
 import	Footer						from	'components/StandardFooter';
 
 import	'tailwindcss/tailwind.css';
@@ -76,6 +77,7 @@ function	AppWrapper(props) {
 					site: '@iearnfinance',
 					cardType: 'summary_large_image',
 				}} />
+			<Header />
 			<main id={'app'} className={'flex relative flex-col mx-auto mb-6 max-w-6xl md:flex-row'}>
 				<Component
 					key={router.route}
