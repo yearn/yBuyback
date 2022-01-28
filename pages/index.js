@@ -7,7 +7,7 @@ import	{truncateHex, formatAmount, formatDate, sortByKey, sum}			from	'utils';
 
 function	RowHead({sortBy, set_sortBy}) {
 	return (
-		<div className={'flex flex-row py-3 px-6 w-full bg-gray-blue-3 rounded-sm'}>
+		<div className={'flex sticky top-0 z-10 flex-row py-3 px-6 w-full bg-gray-blue-3 rounded-sm'}>
 			<div className={'pr-4'}>
 				<div className={'flex flex-row items-center w-42'}>
 					<p className={'pr-1 text-gray-blue-1'}>{'Timestamp'}</p>
@@ -80,7 +80,7 @@ function	Row({row}) {
 					navigator.clipboard.writeText(`https://etherscan.io/tx/${row.hash}`);
 					setTimeout(() => set_isUriCopied(false), 1500);
 				}}
-				className={`p-2 -m-1 -ml-1.5 ${isUriCopied ? 'text-yearn-blue hover:text-yearn-blue cursor-auto' : 'text-gray-blue-1 hover:text-gray-blue-2 cursor-copy'} transition-colors`}>
+				className={`p-2 -m-1 -ml-4 ${isUriCopied ? 'text-yearn-blue hover:text-yearn-blue cursor-auto' : 'text-gray-blue-1 hover:text-gray-blue-2 cursor-copy'} transition-colors`}>
 				<IconCopy />
 			</div>
 		</>
@@ -89,7 +89,7 @@ function	Row({row}) {
 
 function	RowFooter({data}) {
 	return (
-		<div className={'flex flex-row items-center py-3 px-6 w-full bg-gray-blue-3 rounded-sm'}>
+		<div className={'flex sticky bottom-0 z-10 flex-row items-center py-3 px-6 w-full bg-gray-blue-3 rounded-sm'}>
 			<div className={'mr-4'}>
 				<div className={'w-42 font-bold tabular-nums text-dark-blue-1'}>{'Total'}</div>
 			</div>
@@ -134,10 +134,10 @@ function	Index() {
 	}, [sortBy]);
 
 	return (
-		<div className={'mt-4 w-full'}>
-			<div>
+		<div className={'w-full'}>
+			<div className={'relative'}>
 				<RowHead sortBy={sortBy} set_sortBy={set_sortBy} />
-				<FlipMove duration={250} easing={'ease-in-out'} enterAnimation={'none'}>
+				<FlipMove duration={250} easing={'ease-in-out'} enterAnimation={'none'} className={'overflow-scroll'} style={{height: 'calc(100vh - 328px)'}}>
 					{sortedData?.map((row, index) => (
 						<div key={row.id} className={`flex flex-row py-3 px-6 w-full items-center ${index % 2 ? 'bg-white' : 'bg-white-blue-1'} rounded-sm relative mb-0.5`}>
 							<Row row={row} />

@@ -37,6 +37,11 @@ module.exports = {
 				42: '10.5rem',
 				50: '12.5rem',
 				55: '13.75rem',
+				100: '25rem',
+			},
+			height: {
+				106: '26.5rem',
+				'70vh': '70vh',
 			},
 			maxWidth: {
 				'xl': '552px',
