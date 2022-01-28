@@ -1,4 +1,4 @@
-* {scroll-behavior: smooth;}
+* {@apply scroll-smooth font-roboto}
 
 html {
 	margin-left: calc(100vw - 100%);

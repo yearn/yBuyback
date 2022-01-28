@@ -1,6 +1,7 @@
 import	React					from	'react';
 import	FlipMove				from	'react-flip-move';
 import	usePrices				from	'contexts/usePrices';
+import	useWeb3					from	'contexts/useWeb3';
 import	IconCopy				from	'components/icons/IconCopy';
 import	IconArrowDown			from	'components/icons/IconArrowDown';
 import	{truncateHex, formatAmount, formatDate, sortByKey, sum}			from	'utils';
@@ -221,6 +222,7 @@ function	RowFooter({data}) {
 
 function	Index() {
 	const	{prices} = usePrices();
+	const	{active, address, ens, openLoginModal, deactivate, onDesactivate} = useWeb3();
 	const	[sortBy, set_sortBy] = React.useState('time');
 	const	[sortedData, set_sortedData] = React.useState([...someData]);
 
@@ -241,7 +243,7 @@ function	Index() {
 		<div className={'w-full'}>
 			<div className={'flex justify-between items-center p-6 my-4 w-full h-20 bg-white rounded-sm'}>
 				<div className={'flex flex-row items-center'}>
-					<h2 className={'mr-4 font-roboto text-lg font-bold text-dark-blue-1'}>
+					<h2 className={'mr-4 text-lg font-bold text-dark-blue-1'}>
 						{'YFI Buyback'}
 					</h2>
 					<p className={'text-lg text-gray-blue-1'}>
@@ -251,8 +253,21 @@ function	Index() {
 				<div className={'flex flex-row items-center space-x-6'}>
 					<p className={'text-yearn-blue'}>{`YFI $ ${formatAmount(prices?.['yearn-finance']?.usd || 0, 2)}`}</p>
 					<p className={'text-yearn-blue'}>{'Balance: 0 YFI'}</p>
-					<button className={'button-small button-light'}>{'Buy YFI'}</button>
-					<button className={'button-small button-light'}>{'hentai.eth'}</button>
+					<a href={'https://cowswap.exchange/#/swap?outputCurrency=0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e'} target={'_blank'} rel={'noreferrer'}>
+						<button className={'button-small button-light'}>{'Buy YFI'}</button>
+					</a>
+					<button
+						onClick={() => {
+							if (active) {
+								deactivate();
+								onDesactivate();
+							} else {
+								openLoginModal();
+							}
+						}}
+						className={'truncate button-small button-light'}>
+						{!active ? 'Connect wallet' : ens ? ens : truncateHex(address, 4)}
+					</button>
 				</div>
 			</div>
 

@@ -5,6 +5,7 @@ import	{useWeb3React}						from	'@web3-react/core';
 import	{InjectedConnector}					from	'@web3-react/injected-connector';
 import	{ConnectorEvent}					from	'@web3-react/types';
 import	{WalletConnectConnector}			from	'@web3-react/walletconnect-connector';
+import	ModalLogin							from	'components/ModalLogin';
 import	useLocalStorage						from	'hooks/useLocalStorage';
 import	useWindowInFocus					from	'hooks/useWindowInFocus';
 import	useDebounce							from	'hooks/useDebounce';
@@ -35,6 +36,7 @@ export const Web3ContextApp = ({children}) => {
 	const	[, set_nonce] = React.useState(0);
 	const	[disableAutoChainChange, set_disableAutoChainChange] = React.useState(false);
 	const	[disconnected, set_disconnected] = React.useState(false);
+	const	[modalLoginOpen, set_modalLoginOpen] = React.useState(true);
 	const	debouncedChainID = useDebounce(chainID, 500);
 	const	windowInFocus = useWindowInFocus();
 
@@ -183,8 +185,14 @@ export const Web3ContextApp = ({children}) => {
 				active: active && (chainID === 1 || chainID === 250 || chainID === 1337 || chainID === 31337),
 				provider,
 				getProvider,
+				openLoginModal: () => set_modalLoginOpen(true)
 			}}>
 			{children}
+			<ModalLogin
+				connect={connect}
+				walletType={walletType}
+				open={modalLoginOpen}
+				set_open={set_modalLoginOpen} />
 		</Web3Context.Provider>
 	);
 };
