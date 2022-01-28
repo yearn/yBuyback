@@ -1,5 +1,4 @@
 import	React					from	'react';
-import	Link					from	'next/link';
 import	FlipMove				from	'react-flip-move';
 import	{Parser}				from	'json2csv';
 import	IconCopy				from	'components/icons/IconCopy';
