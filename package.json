@@ -25,6 +25,7 @@
     "dotenv-webpack": "^7.0.3",
     "ethcall": "^4.3.2",
     "ethers": "^5.5.3",
+    "json2csv": "^5.0.6",
     "next": "12.0.8",
     "next-seo": "^4.29.0",
     "react": "17.0.2",

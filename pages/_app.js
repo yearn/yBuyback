@@ -78,7 +78,7 @@ function	AppWrapper(props) {
 					cardType: 'summary_large_image',
 				}} />
 			<Header />
-			<main id={'app'} className={'flex relative flex-col mx-auto mb-6 max-w-6xl md:flex-row'}>
+			<main id={'app'} className={'flex relative flex-col mx-auto mb-0 max-w-6xl md:flex-row md:mb-6'}>
 				<Component
 					key={router.route}
 					element={props.element}

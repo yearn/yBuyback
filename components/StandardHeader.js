@@ -1,25 +1,35 @@
 import	React					from	'react';
 import	usePrices				from	'contexts/usePrices';
 import	useWeb3					from	'contexts/useWeb3';
+import	IconHamburger			from	'components/icons/IconHamburger';
+import	ModalMenu				from	'components/ModalMenu';
 import	BUYBACKS				from	'public/buybacks.json';
 import	{truncateHex, formatAmount, formatDate}			from	'utils';
 
-function	Header({children}) {
+function	Header() {
 	const	{prices} = usePrices();
 	const	{active, address, ens, openLoginModal, deactivate, onDesactivate} = useWeb3();
+	const	[openMenu, set_openMenu] = React.useState(false);
 
 	return (
-		<header className={'z-50 py-4 mx-auto w-full max-w-6xl bg-white-blue-1'}>
-			<div className={'flex justify-between items-center p-6 h-20 bg-white rounded-sm'}>
+		<header className={'z-50 py-0 mx-auto w-full max-w-6xl bg-white-blue-1 md:py-4'}>
+			<div className={'flex justify-between items-center py-3 px-2 h-auto bg-white rounded-sm md:p-6 md:h-20'}>
 				<div className={'flex flex-row items-center'}>
-					<h2 className={'mr-4 text-lg font-bold text-dark-blue-1'}>
+					<h2 className={'mr-2 text-lg font-bold text-dark-blue-1 md:mr-4'}>
 						{'YFI Buyback'}
 					</h2>
-					<p className={'text-xs text-gray-blue-1'}>
-						{`Last update: ${formatDate(new Date(BUYBACKS[BUYBACKS.length - 1].timestamp))}`}
+					<p className={'mt-1 text-xs text-gray-blue-1'}>
+						{`Last update: ${formatDate(new Date(BUYBACKS[BUYBACKS.length - 1].timestamp), false)}`}
 					</p>
 				</div>
-				<div className={'flex flex-row items-center space-x-6'}>
+				<div className={'flex flex-row items-center space-x-6 md:hidden'}>
+					<div
+						onClick={() => set_openMenu(true)}
+						className={'p-1 -m-1'}>
+						<IconHamburger />
+					</div>
+				</div>
+				<div className={'hidden flex-row items-center space-x-6 md:flex'}>
 					<p className={'text-yearn-blue'}>{`YFI $ ${formatAmount(prices?.['yearn-finance']?.usd || 0, 2)}`}</p>
 					<p className={'text-yearn-blue'}>{'Balance: 0 YFI'}</p>
 					<a href={'https://cowswap.exchange/#/swap?outputCurrency=0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e'} target={'_blank'} rel={'noreferrer'}>
@@ -39,6 +49,7 @@ function	Header({children}) {
 					</button>
 				</div>
 			</div>
+			<ModalMenu open={openMenu} set_open={set_openMenu} />
 		</header>
 	);
 }

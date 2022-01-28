@@ -7,7 +7,7 @@ import	IconMedium					from	'components/icons/IconMedium';
 
 function	Footer({children}) {
 	return (
-		<footer className={'flex flex-row items-center py-8 px-6 mx-auto w-full max-w-6xl bg-white-blue-1'}>
+		<footer className={'hidden flex-row items-center py-8 px-6 mx-auto w-full max-w-6xl bg-white-blue-1 md:flex'}>
 			<Link href={'/disclaimer'}>
 				<p className={'pr-6 text-gray-blue-1 link'}>{'Disclaimer'}</p>
 			</Link>

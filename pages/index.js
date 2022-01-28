@@ -1,8 +1,9 @@
 import	React					from	'react';
 import	FlipMove				from	'react-flip-move';
+import	{Parser}				from	'json2csv';
 import	IconCopy				from	'components/icons/IconCopy';
 import	IconArrowDown			from	'components/icons/IconArrowDown';
-import	BUYBACKS				from	'public/buybacks.json';
+import	{getBuybacks}			from	'pages/api/buyback-as-json';
 import	{truncateHex, formatAmount, formatDate, sortByKey, sum}			from	'utils';
 
 function	RowHead({sortBy, set_sortBy}) {
@@ -88,6 +89,24 @@ function	Row({row}) {
 }
 
 function	RowFooter({data}) {
+	function	prepareCSV() {
+		const	fields = ['id', 'timestamp', 'yfiAmount', 'usdValue', 'tokenAmount', 'token', 'hash'];
+		try {
+			const	parser = new Parser({fields});
+			const	csv = parser.parse(data);
+			const	csvFile = new Blob([csv], {type: 'text/csv'});
+			const	downloadLink = document.createElement('a');
+			downloadLink.download = 'yfi-buyback.csv';
+			downloadLink.href = window.URL.createObjectURL(csvFile);
+			downloadLink.style.display = 'none';
+			document.body.appendChild(downloadLink);
+			downloadLink.click();
+			document.body.removeChild(downloadLink);
+		} catch (err) {
+			console.error(err);
+		}
+		
+	}
 	return (
 		<div className={'flex sticky bottom-0 z-10 flex-row items-center py-3 px-6 w-full bg-gray-blue-3 rounded-sm'}>
 			<div className={'mr-4'}>
@@ -107,7 +126,9 @@ function	RowFooter({data}) {
 			</div>
 			<div className={'ml-2'}>
 				<div className={'flex justify-end w-56'}>
-					<button className={'button-small button-filled'}>
+					<button
+						onClick={prepareCSV}
+						className={'button-small button-filled'}>
 						<p className={'font-normal'}>{'Export CSV'}</p>
 					</button>
 				</div>
@@ -116,12 +137,12 @@ function	RowFooter({data}) {
 	);
 }
 
-function	Index() {
+function	Index({data}) {
 	const	[sortBy, set_sortBy] = React.useState('time');
-	const	[sortedData, set_sortedData] = React.useState([...BUYBACKS].reverse());
+	const	[sortedData, set_sortedData] = React.useState([...data].reverse());
 
 	React.useEffect(() => {
-		let _data = BUYBACKS.map(a => {return {...a};});
+		let _data = data.map(a => {return {...a};});
 
 		if (sortBy === 'time') {
 			_data = sortByKey(_data, 'timestamp', -1);
@@ -131,24 +152,28 @@ function	Index() {
 			_data = sortByKey(_data, 'usdValue', -1);
 		}
 		set_sortedData(_data);
-	}, [sortBy]);
+	}, [sortBy, data]);
 
 	return (
 		<div className={'w-full'}>
-			<div className={'relative'}>
+			<div className={'overflow-x-scroll relative md-adapted-height'}>
 				<RowHead sortBy={sortBy} set_sortBy={set_sortBy} />
-				<FlipMove duration={250} easing={'ease-in-out'} enterAnimation={'none'} className={'overflow-scroll'} style={{height: 'calc(100vh - 328px)'}}>
+				<FlipMove duration={250} easing={'ease-in-out'} enterAnimation={'none'} className={'overflow-scroll adapted-height'}>
 					{sortedData?.map((row, index) => (
 						<div key={row.id} className={`flex flex-row py-3 px-6 w-full items-center ${index % 2 ? 'bg-white' : 'bg-white-blue-1'} rounded-sm relative mb-0.5`}>
 							<Row row={row} />
 						</div>
 					))}
 				</FlipMove>
-				<RowFooter data={BUYBACKS} />
+				<RowFooter data={data} />
 			</div>
 
 		</div>
 	);
 }
 
+export async function getServerSideProps() {
+	return {props: {data: await getBuybacks()}};
+}
+  
 export default Index;

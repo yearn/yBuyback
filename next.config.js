@@ -20,6 +20,7 @@ module.exports = ({
 		USE_PRICES: true,
 		USE_PRICE_TRI_CRYPTO: false,
 		CG_IDS: ['yearn-finance'],
-		ALCHEMY_KEY: process.env.ALCHEMY_KEY
+		ALCHEMY_KEY: process.env.ALCHEMY_KEY,
+		BUYBACK_SOURCE: 'https://raw.githubusercontent.com/yearn/ychad-audit/master/reports/financial/buybacks/buybacks.json'
 	}
 });
