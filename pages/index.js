@@ -1,4 +1,5 @@
 import	React					from	'react';
+import	Link					from	'next/link';
 import	FlipMove				from	'react-flip-move';
 import	{Parser}				from	'json2csv';
 import	IconCopy				from	'components/icons/IconCopy';
@@ -72,7 +73,11 @@ function	Row({row}) {
 				<div className={'w-28 text-gray-blue-1'}>{row.token}</div>
 			</div>
 			<div className={'mr-6'}>
-				<div className={'w-48 tabular-nums text-gray-blue-1'}>{truncateHex(row.hash, 9)}</div>
+				<a href={`https://etherscan.io/tx/${row.hash}`} target={'_blank'} rel={'noreferrer'}>
+					<div className={'w-48 tabular-nums text-gray-blue-1 link'}>
+						{truncateHex(row.hash, 9)}
+					</div>
+				</a>
 			</div>
 			<div
 				onClick={(e) => {
