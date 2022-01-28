@@ -36,7 +36,7 @@ export const Web3ContextApp = ({children}) => {
 	const	[, set_nonce] = React.useState(0);
 	const	[disableAutoChainChange, set_disableAutoChainChange] = React.useState(false);
 	const	[disconnected, set_disconnected] = React.useState(false);
-	const	[modalLoginOpen, set_modalLoginOpen] = React.useState(true);
+	const	[modalLoginOpen, set_modalLoginOpen] = React.useState(false);
 	const	debouncedChainID = useDebounce(chainID, 500);
 	const	windowInFocus = useWindowInFocus();
 
