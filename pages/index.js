@@ -57,7 +57,7 @@ function	Row({row}) {
 	return (
 		<>
 			<div className={'mr-4'}>
-				<div className={'w-42 tabular-nums text-gray-blue-1'}>{formatDate(new Date(row.timestamp))}</div>
+				<div className={'w-42 tabular-nums text-gray-blue-1'}>{formatDate(new Date(row?.timestamp?.replace(/-/g, '/') || ''))}</div>
 			</div>
 			<div className={'mr-8'}>
 				<div className={'w-42 tabular-nums text-gray-blue-1'}>{formatAmount(row.yfiAmount, 12)}</div>

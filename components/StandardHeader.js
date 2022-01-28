@@ -1,10 +1,10 @@
 import	React					from	'react';
+import	axios					from	'axios';
 import	useWeb3					from	'contexts/useWeb3';
 import	usePrices				from	'contexts/usePrices';
 import	useBalances				from	'contexts/useBalances';
 import	IconHamburger			from	'components/icons/IconHamburger';
 import	ModalMenu				from	'components/ModalMenu';
-import	BUYBACKS				from	'public/buybacks.json';
 import	{truncateHex, formatAmount, formatDate}			from	'utils';
 
 const		YFI_ADDRESS = '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e';
@@ -13,6 +13,13 @@ function	Header() {
 	const	{balancesOf} = useBalances();
 	const	{active, address, ens, openLoginModal, deactivate, onDesactivate} = useWeb3();
 	const	[openMenu, set_openMenu] = React.useState(false);
+	const	[allData, set_allData] = React.useState(null);
+
+	React.useEffect(() => {
+		axios.get(process.env.BUYBACK_SOURCE).then(({data}) => {
+			set_allData(data);
+		});
+	});
 
 	return (
 		<header className={'z-50 py-0 mx-auto w-full max-w-6xl bg-white-blue-1 md:py-4'}>
@@ -22,7 +29,7 @@ function	Header() {
 						{'YFI Buyback'}
 					</h2>
 					<p className={'mt-1 text-xs text-gray-blue-1'}>
-						{`Last update: ${formatDate(new Date(BUYBACKS[BUYBACKS.length - 1].timestamp), false)}`}
+						{`Last update: ${allData && allData.length > 0 ? formatDate(new Date(allData?.[allData.length - 1]?.timestamp.replace(/-/g, '/') || ''), false) : 'A few times ago'}`}
 					</p>
 				</div>
 				<div className={'flex flex-row items-center space-x-6 md:hidden'}>

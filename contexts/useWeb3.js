@@ -169,12 +169,8 @@ export const Web3ContextApp = ({children}) => {
 			value={{
 				address,
 				ens,
-				connect,
-				deactivate,
-				onDesactivate,
 				disconnected,
-				walletType,
-				chainID: process.env.IS_TEST ? process.env.TESTED_NETWORK : chainID,
+				chainID,
 				onSwitchChain,
 				active: active && (chainID === 1 || chainID === 250 || chainID === 1337 || chainID === 31337),
 				provider,

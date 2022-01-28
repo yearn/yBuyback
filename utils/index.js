@@ -50,8 +50,6 @@ export function	formatDate(value, withDate = true) {
 	return (new Intl.DateTimeFormat('fr', {dateStyle: 'short', hourCycle: 'h24'}).format(value));
 }
 
-
-
 export async function newEthCallProvider(provider) {
 	const	ethcallProvider = new Provider();
 	if (process.env.IS_TEST) {
