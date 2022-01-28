@@ -17,6 +17,9 @@ module.exports = ({
 		WEBSITE_NAME: 'YFI Buyback',
 		WEBSITE_DESCRIPTION: 'You dump, we buy',
 		PROJECT_GITHUB_URL: 'https://github.com/Major-Eth/yBuyback',
+		USE_PRICES: true,
+		USE_PRICE_TRI_CRYPTO: false,
+		CG_IDS: ['yearn-finance'],
 		ALCHEMY_KEY: process.env.ALCHEMY_KEY
 	}
 });

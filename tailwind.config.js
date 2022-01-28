@@ -1,3 +1,5 @@
+const defaultTheme = require('tailwindcss/defaultTheme');
+
 module.exports = {
 	corePlugins: {
 		ringColor: false,
@@ -11,8 +13,7 @@ module.exports = {
 	},
 	theme: {
 		fontFamily: {
-			roboto: ['Roboto', 'sans-serif'],
-			mono: ['IBM Plex Mono', 'monospace']
+			roboto: ['Roboto', ...defaultTheme.fontFamily.sans]
 		},
 		colors: {
 			'dark-blue-1': '#001746',

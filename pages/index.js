@@ -1,5 +1,6 @@
 import	React					from	'react';
 import	FlipMove				from	'react-flip-move';
+import	usePrices				from	'contexts/usePrices';
 import	IconCopy				from	'components/icons/IconCopy';
 import	IconArrowDown			from	'components/icons/IconArrowDown';
 import	{truncateHex, formatAmount, formatDate, sortByKey, sum}			from	'utils';
@@ -219,6 +220,7 @@ function	RowFooter({data}) {
 }
 
 function	Index() {
+	const	{prices} = usePrices();
 	const	[sortBy, set_sortBy] = React.useState('time');
 	const	[sortedData, set_sortedData] = React.useState([...someData]);
 
@@ -247,7 +249,7 @@ function	Index() {
 					</p>
 				</div>
 				<div className={'flex flex-row items-center space-x-6'}>
-					<p className={'text-yearn-blue'}>{'YFI $ 33,576'}</p>
+					<p className={'text-yearn-blue'}>{`YFI $ ${formatAmount(prices?.['yearn-finance']?.usd || 0, 2)}`}</p>
 					<p className={'text-yearn-blue'}>{'Balance: 0 YFI'}</p>
 					<button className={'button-small button-light'}>{'Buy YFI'}</button>
 					<button className={'button-small button-light'}>{'hentai.eth'}</button>
