@@ -15,7 +15,7 @@ module.exports = ({
 	env: {
 		WEBSITE_URI: 'https://buyback.major.tax/',
 		WEBSITE_NAME: 'YFI Buyback',
-		WEBSITE_DESCRIPTION: 'Be on-top of YFI buybacks. Simple.',
+		WEBSITE_DESCRIPTION: 'You dump, we buy. Simple.',
 		PROJECT_GITHUB_URL: 'https://github.com/Major-Eth/yBuyback',
 		USE_PRICES: true,
 		USE_PRICE_TRI_CRYPTO: false,
