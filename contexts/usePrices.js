@@ -5,13 +5,15 @@ import	useWeb3						from	'contexts/useWeb3';
 import	useLocalStorage				from	'hooks/useLocalStorage';
 
 async function	getTriCryptoPrice({provider}) {
+	const	TRI_CRYPTO_LP_TOKEN_ADDR = '0xcA3d75aC011BF5aD07a98d02f18225F9bD9A6BDF';
+	const	UTILS_TRI_CRYPTO_LENS_ADDR = '0x83d95e0D5f402511dB06817Aff3f9eA88224B030';
 	const	contract = new ethers.Contract(
-		process.env.UTILS_TRI_CRYPTO_LENS_ADDR,
+		UTILS_TRI_CRYPTO_LENS_ADDR,
 		['function getNormalizedValueUsdc(address, uint256) public view returns (uint256)'],
 		provider
 	);
 	const priceUSDC = await contract.getNormalizedValueUsdc(
-		process.env.TRI_CRYPTO_LP_TOKEN_ADDR,
+		TRI_CRYPTO_LP_TOKEN_ADDR,
 		'1000000000000000000'
 	);
 	const triCryptoPrice = ethers.utils.formatUnits(priceUSDC, 6);
