@@ -3,7 +3,7 @@ import	Head						from	'next/head';
 import	{DefaultSeo}				from	'next-seo';
 import	{ethers}					from	'ethers';
 import	{Web3ReactProvider}			from	'@web3-react/core';
-import	{NetworkContextApp}			from	'contexts/useNetwork';
+import	{BalancesContextApp}		from	'contexts/useBalances';
 import	{UIContextApp}				from	'contexts/useUI';
 import	{PricesContextApp}			from	'contexts/usePrices';
 import	{LocalizationContextApp}	from 	'contexts/useLocalization';
@@ -108,17 +108,17 @@ function	MyApp(props) {
 		<UIContextApp>
 			<Web3ReactProvider getLibrary={getLibrary}>
 				<Web3ContextApp>
-					<PricesContextApp>
-						<LocalizationContextApp router={props.router}>
-							<NetworkContextApp>
+					<BalancesContextApp>
+						<PricesContextApp>
+							<LocalizationContextApp router={props.router}>
 								<AppWrapper
 									Component={Component}
 									pageProps={pageProps}
 									element={props.element}
 									router={props.router} />
-							</NetworkContextApp>
-						</LocalizationContextApp>
-					</PricesContextApp>
+							</LocalizationContextApp>
+						</PricesContextApp>
+					</BalancesContextApp>
 				</Web3ContextApp>
 			</Web3ReactProvider>
 		</UIContextApp>

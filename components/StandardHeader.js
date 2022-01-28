@@ -1,13 +1,16 @@
 import	React					from	'react';
-import	usePrices				from	'contexts/usePrices';
 import	useWeb3					from	'contexts/useWeb3';
+import	usePrices				from	'contexts/usePrices';
+import	useBalances				from	'contexts/useBalances';
 import	IconHamburger			from	'components/icons/IconHamburger';
 import	ModalMenu				from	'components/ModalMenu';
 import	BUYBACKS				from	'public/buybacks.json';
 import	{truncateHex, formatAmount, formatDate}			from	'utils';
 
+const		YFI_ADDRESS = '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e';
 function	Header() {
 	const	{prices} = usePrices();
+	const	{balancesOf} = useBalances();
 	const	{active, address, ens, openLoginModal, deactivate, onDesactivate} = useWeb3();
 	const	[openMenu, set_openMenu] = React.useState(false);
 
@@ -31,7 +34,7 @@ function	Header() {
 				</div>
 				<div className={'hidden flex-row items-center space-x-6 md:flex'}>
 					<p className={'text-yearn-blue'}>{`YFI $ ${formatAmount(prices?.['yearn-finance']?.usd || 0, 2)}`}</p>
-					<p className={'text-yearn-blue'}>{'Balance: 0 YFI'}</p>
+					<p className={'text-yearn-blue'}>{`Balance: ${formatAmount(balancesOf?.[YFI_ADDRESS] || 0, 6)} YFI`}</p>
 					<a href={'https://cowswap.exchange/#/swap?outputCurrency=0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e'} target={'_blank'} rel={'noreferrer'}>
 						<button className={'button-small button-light'}>{'Buy YFI'}</button>
 					</a>
