@@ -13,9 +13,10 @@ module.exports = ({
 		],
 	},
 	env: {
-		WEBSITE_URI: 'https://template.major.tax/',
-		WEBSITE_NAME: 'yUITemplate',
-		WEBSITE_DESCRIPTION: 'Template used for some Yearn\'s project',
+		WEBSITE_URI: 'https://buyback.major.tax/',
+		WEBSITE_NAME: 'YFI Buyback',
+		WEBSITE_DESCRIPTION: 'You dump, we buy',
+		PROJECT_GITHUB_URL: 'https://github.com/Major-Eth/yBuyback',
 		ALCHEMY_KEY: process.env.ALCHEMY_KEY
 	}
 });

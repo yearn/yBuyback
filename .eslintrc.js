@@ -30,6 +30,6 @@ module.exports = {
 		'object-curly-spacing': [2, 'never'],
 		'array-bracket-spacing': [2, 'never'],
 		'react/jsx-curly-brace-presence': ['error', {'props': 'always', 'children': 'always'}],
-		'semi': 'error',
+		'semi': 'error'
 	}
 };
