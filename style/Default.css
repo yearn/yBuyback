@@ -1,15 +1,24 @@
-* {@apply scroll-smooth font-roboto}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+	@apply scroll-smooth font-roboto
+}
 
 html {
 	margin-left: calc(100vw - 100%);
 	background: #F4F7FB;
 }
+
 html.dark {
 	margin-left: calc(100vw - 100%);
 	background: #0f172a;
 }
 
-#__next {@apply w-full h-full}
+#__next {
+	@apply w-full h-full
+}
 
 
 ::placeholder,
@@ -22,40 +31,162 @@ html.dark {
 .flex-center {
 	@apply justify-center items-center;
 }
+
 .text-start {
 	text-align: start;
 	text-align: left;
 }
 
 
-button {@apply cursor-pointer}
-button:disabled {@apply cursor-not-allowed}
+button {
+	@apply cursor-pointer
+}
+
+button:disabled {
+	@apply cursor-not-allowed
+}
 
 /* Size of buttons */
-.button-small {@apply w-33 px-2 py-1 rounded-sm text-base text-center transition-colors}
-.button-large {@apply w-55 px-2 py-2 rounded-sm text-base text-center transition-colors}
+.button-small {
+	@apply w-33 px-2 py-1 rounded-sm text-base text-center transition-colors
+}
+
+.button-large {
+	@apply w-55 px-2 py-2 rounded-sm text-base text-center transition-colors
+}
 
 /* Color style of buttons */
-.button-light {@apply text-yearn-blue bg-yearn-blue-light-2 hover:bg-yearn-blue-light-1}
+.button-light {
+	@apply text-yearn-blue bg-yearn-blue-light-2 hover:bg-yearn-blue-light-1
+}
 
-.button-filled {@apply font-bold text-white bg-yearn-blue hover:bg-yearn-blue-dark}
-.button-filled:disabled {@apply bg-white-blue-1 text-gray-blue-3 hover:bg-white-blue-1}
+.button-filled {
+	@apply font-bold text-white bg-yearn-blue hover:bg-yearn-blue-dark
+}
 
-.button-outline {@apply text-yearn-blue border border-yearn-blue hover:bg-yearn-blue-light-2}
-.button-outline:disabled {@apply text-gray-blue-3 border border-gray-blue-3 bg-opacity-0}
+.button-filled:disabled {
+	@apply bg-white-blue-1 text-gray-blue-3 hover:bg-white-blue-1
+}
 
-.link {@apply hover:text-yearn-blue hover:underline transition-colors cursor-pointer}
+.button-outline {
+	@apply text-yearn-blue border border-yearn-blue hover:bg-yearn-blue-light-2
+}
+
+.button-outline:disabled {
+	@apply text-gray-blue-3 border border-gray-blue-3 bg-opacity-0
+}
+
+.link {
+	@apply hover:text-yearn-blue hover:underline transition-colors cursor-pointer
+}
 
 .md-adapted-height {
-	display: grid;
 	height: calc(100vh - 54px);
 }
+
 @screen md {
 	.md-adapted-height {
-		display: unset;
 		@apply h-full;
 	}
+
 	.adapted-height {
 		height: calc(100vh - 328px);
+	}
+}
+
+.goUp0 {
+	opacity: 0;
+	animation: goUpAnimation0 2s, fadeOut 2s;
+}
+
+@keyframes goUpAnimation0 {
+	from {
+		transform: translate(0px, 0px);
+	}
+
+	to {
+		transform: translate(0px, -400px);
+	}
+}
+
+.goUp1 {
+	opacity: 0;
+	animation: goUpAnimation1 2s, fadeOut 2s;
+}
+
+@keyframes goUpAnimation1 {
+	from {
+		transform: translate(0px, 0px);
+	}
+
+	to {
+		transform: translate(0px, -300px);
+	}
+}
+
+.goUp2 {
+	opacity: 0;
+	animation: goUpAnimation2 2s, fadeOut 2s;
+}
+
+@keyframes goUpAnimation2 {
+	from {
+		transform: translate(0px, 0px);
+	}
+
+	to {
+		transform: translate(0px, -200px);
+	}
+}
+
+.leftRight0 {
+	animation: leftRightAnimation0 0.3s alternate infinite ease-in-out;
+}
+
+@keyframes leftRightAnimation0 {
+	from {
+		transform: translate(0px, 0px);
+	}
+
+	to {
+		transform: translate(50px, 0px);
+	}
+}
+
+.leftRight1 {
+	animation: leftRightAnimation1 0.3s alternate infinite ease-in-out;
+}
+
+@keyframes leftRightAnimation1 {
+	from {
+		transform: translate(0px, 0px);
+	}
+
+	to {
+		transform: translate(100px, 0px);
+	}
+}
+
+.leftRight2 {
+	animation: leftRightAnimation2 0.3s alternate infinite ease-in-out;
+}
+
+@keyframes leftRightAnimation2 {
+	from {
+		transform: translate(0px, 0px);
+	}
+
+	to {
+		transform: translate(-50px, 0px);
+	}
+}
+
+@keyframes fadeOut {
+	from {
+		opacity: 1;
+	}
+
+	to {
+		opacity: 0;
 	}
 }

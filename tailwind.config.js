@@ -5,12 +5,10 @@ module.exports = {
 		ringColor: false,
 	},
 	darkMode: 'class',
-	purge: {
-		content: [
-			'./pages/**/*.js',
-			'./components/**/*.js'
-		],
-	},
+	content: [
+		'./pages/**/*.js',
+		'./components/**/*.js'
+	],
 	theme: {
 		fontFamily: {
 			roboto: ['Roboto', ...defaultTheme.fontFamily.sans]
@@ -31,6 +29,9 @@ module.exports = {
 			'white-blue-2': '#F9FBFD',
 		},
 		extend: {
+			gridTemplateColumns: {
+				'22': 'repeat(22, minmax(0, 1fr))',
+			},
 			width: {
 				33: '8.25rem',
 				38: '9.5rem',
@@ -40,8 +41,17 @@ module.exports = {
 				100: '25rem',
 			},
 			height: {
+				'table-wrapper': 'calc(100vh - 54px)',
+				102: '25.5rem',
 				106: '26.5rem',
+				136: '34rem',
 				'70vh': '70vh',
+			},
+			minWidth: {
+				32: '8rem',
+				33: '8.25rem',
+				36: '9rem',
+				40: '10rem'
 			},
 			maxWidth: {
 				'xl': '552px',

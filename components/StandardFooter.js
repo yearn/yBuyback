@@ -9,7 +9,9 @@ function	Footer({children}) {
 	return (
 		<footer className={'hidden flex-row items-center py-8 px-6 mx-auto w-full max-w-6xl bg-white-blue-1 md:flex'}>
 			<Link href={'/disclaimer'}>
-				<p className={'pr-6 text-gray-blue-1 link'}>{'Disclaimer'}</p>
+				<p className={'pr-6 text-gray-blue-1 link'}>
+					{'Disclaimer'}
+				</p>
 			</Link>
 			<a href={'https://docs.yearn.finance'} target={'_blank'} className={'pr-6 text-gray-blue-1 link'} rel={'noreferrer'}>
 				{'Documentation'}

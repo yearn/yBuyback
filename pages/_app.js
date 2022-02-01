@@ -11,12 +11,11 @@ import	{Web3ContextApp}			from	'contexts/useWeb3';
 import	Header						from	'components/StandardHeader';
 import	Footer						from	'components/StandardFooter';
 
-import	'tailwindcss/tailwind.css';
 import	'style/Default.css';
 
 function	AppWrapper(props) {
-	const	{Component, pageProps, router} = props;
 	const	WEBSITE_URI = process.env.WEBSITE_URI;
+	const	{Component, pageProps, router} = props;
 
 	return (
 		<>
@@ -78,7 +77,7 @@ function	AppWrapper(props) {
 					cardType: 'summary_large_image',
 				}} />
 			<Header />
-			<main id={'app'} className={'flex relative flex-col mx-auto mb-0 max-w-6xl md:flex-row md:mb-6'}>
+			<main id={'app'} className={'flex relative flex-col mx-auto mt-14 mb-0 max-w-6xl md:flex-row md:mt-28 md:mb-6'}>
 				<Component
 					key={router.route}
 					element={props.element}
