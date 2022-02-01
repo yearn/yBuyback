@@ -67,3 +67,10 @@ export async function newEthCallProvider(provider) {
 	await	ethcallProvider.init(provider);
 	return	ethcallProvider;
 }
+
+export function toSafeDate(dateAsString) {
+	const [date, time] = dateAsString.split(' ');
+	const [year, month, day] = date.split('-');
+	const [hour, minute, second] = time.split(':');
+	return new Date(year, month - 1, day, hour, minute, second);
+}

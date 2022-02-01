@@ -16,7 +16,7 @@ const Rows = React.memo(function Rows({sortedData}) {
 			{sortedData?.map((row, index) => (
 				<div key={row.id} className={`grid-row ${index % 2 ? 'bg-white' : 'bg-white-blue-1'}`}>
 					<div className={'items-start min-w-32 row-3'}>
-						<div className={'tabular-nums text-gray-blue-1'}>{utils.formatDate(new Date(row?.timestamp?.replace(/-/g, '/') || ''))}</div>
+						<div className={'tabular-nums text-gray-blue-1'}>{utils.formatDate(utils.toSafeDate(row.timestamp))}</div>
 					</div>
 					<div className={'justify-end items-start min-w-36 row-3'}>
 						<div className={'cell-right'}>{utils.formatAmount(row.yfiAmount, 12, 8)}</div>
@@ -191,12 +191,13 @@ function	Index({data}) {
 
 		for (let index = 0; index < _data.length; index++) {
 			const	row = _data[index];
-			const	year = new Date(row.timestamp).getFullYear();
-			let		month = (new Date(row.timestamp).getMonth()) + 1;
+			const	safeDate = utils.toSafeDate(row.timestamp);
+			const	year = safeDate.getFullYear();
+			let		month = (safeDate.getMonth()) + 1;
 			if (month < 10)
 				month = `0${month}`;
 			const	datePeriodKey = `${year}-${month}`;
-			const	datePeriod = new Intl.DateTimeFormat('en-US', {month: 'short', year: 'numeric'}).format(new Date(row.timestamp.replace(/-/g, '/')));
+			const	datePeriod = new Intl.DateTimeFormat('en-US', {month: 'short', year: 'numeric'}).format(safeDate);
 			if (!arr[datePeriodKey]) {
 				arr[datePeriodKey] = {
 					datePeriod,
