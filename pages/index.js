@@ -173,6 +173,22 @@ function	Index({data}) {
 		let		totalYfiAmount = 0;
 		let		totalUSDValue = 0;
 		const	arr = {};
+
+		const	start = new Date(1604185201000);
+		const	end = new Date();
+		for (let date = start; date <= end; date.setMonth(date.getMonth() + 1)) {
+			const	year = date.getFullYear();
+			const	month = date.getMonth() + 1;
+			const	monthStr = month < 10 ? `0${month}` : `${month}`;
+			const	datePeriod = new Intl.DateTimeFormat('en-US', {month: 'short', year: 'numeric'}).format(date);
+			const	key = `${year}-${monthStr}`;
+			arr[key] = {
+				datePeriod,
+				yfiAmount: 0,
+				usdValue: 0,
+			};
+		}
+
 		for (let index = 0; index < _data.length; index++) {
 			const	row = _data[index];
 			const	year = new Date(row.timestamp).getFullYear();
