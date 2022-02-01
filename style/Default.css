@@ -27,6 +27,14 @@ html.dark {
 	color: #C5C6C7 !important;
 }
 
+.scrollbar-none::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-none {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
 
 .flex-center {
 	@apply justify-center items-center;
@@ -83,6 +91,20 @@ button:disabled {
 .md-adapted-height {
 	height: calc(100vh - 54px);
 }
+
+.grid-row {
+	@apply grid grid-cols-22 w-max md:w-full py-3 px-6 h-16 rounded-sm relative mb-0.5;
+}
+.row-3 {
+	@apply flex col-span-3;
+}
+.row-4 {
+	@apply flex col-span-4;
+}
+.cell-right {
+	@apply tabular-nums text-right text-gray-blue-1;
+}
+
 
 @screen md {
 	.md-adapted-height {

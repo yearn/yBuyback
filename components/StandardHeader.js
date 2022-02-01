@@ -30,6 +30,8 @@ function	Header() {
 	const	[allData, set_allData] = React.useState(null);
 	const	[reactions, set_reactions] = React.useState([]);
 	const	[hoverRef, hoverState] = useHover();
+	const	[yfiAmount, set_yfiAmount] = React.useState('-');
+	const	[yfiPrice, set_yfiPrice] = React.useState('-');
 
 	// Remove reactions that are not visible anymore (every 1 sec)
 	useInterval(() => {
@@ -56,10 +58,15 @@ function	Header() {
 		axios.get(process.env.BUYBACK_SOURCE).then(({data}) => {
 			set_allData(data);
 		});
-	});
+	}, []);
+
+	React.useEffect(() => {
+		set_yfiAmount((Number(balancesOf?.[YFI_ADDRESS]) || 0) === 0 ? '-' : formatAmount(balancesOf?.[YFI_ADDRESS] || 0, 6));
+		set_yfiPrice(formatAmount(prices?.['yearn-finance']?.usd || 0, 2));
+	}, [balancesOf, prices]);
 
 	return (
-		<header className={'fixed top-0 z-50 py-0 w-full bg-white-blue-1 md:py-4'}>
+		<header className={'fixed top-0 left-0 z-50 py-0 w-screen bg-white-blue-1 md:py-4'}>
 			<div className={'flex justify-between items-center py-3 px-2 mx-auto w-full max-w-6xl h-auto bg-white rounded-sm md:p-6 md:h-20'}>
 				<div className={'flex flex-row items-center'}>
 					<h2 className={'mr-2 text-lg font-bold text-dark-blue-1 md:mr-4'}>
@@ -77,12 +84,16 @@ function	Header() {
 					</div>
 				</div>
 				<div className={'hidden flex-row items-center space-x-6 md:flex'}>
-					<p className={'text-yearn-blue'}>{`YFI $ ${formatAmount(prices?.['yearn-finance']?.usd || 0, 2)}`}</p>
 					<p className={'text-yearn-blue'}>
-						{`Balance: ${formatAmount(balancesOf?.[YFI_ADDRESS] || 0, 6)} YFI`}
+						{`YFI $ ${yfiPrice}`}
+					</p>
+					<p className={'text-yearn-blue'}>
+						{`Balance: ${yfiAmount} YFI`}
 					</p>
 					<a href={'https://cowswap.exchange/#/swap?outputCurrency=0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e&referral=0xFEB4acf3df3cDEA7399794D0869ef76A6EfAff52'} target={'_blank'} rel={'noreferrer'}>
-						<button ref={hoverRef} className={'button-small button-light'}>{'Buy YFI'}</button>
+						<button ref={hoverRef} className={'button-small button-filled'}>
+							<p className={'font-normal'}>{'Buy YFI'}</p>
+						</button>
 					</a>
 					<button
 						onClick={() => {
