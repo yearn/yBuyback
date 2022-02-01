@@ -196,7 +196,7 @@ function	Index({data}) {
 			if (month < 10)
 				month = `0${month}`;
 			const	datePeriodKey = `${year}-${month}`;
-			const	datePeriod = new Intl.DateTimeFormat('en-US', {month: 'short', year: 'numeric'}).format(new Date(row.timestamp));
+			const	datePeriod = new Intl.DateTimeFormat('en-US', {month: 'short', year: 'numeric'}).format(new Date(row.timestamp.replace(/-/g, '/')));
 			if (!arr[datePeriodKey]) {
 				arr[datePeriodKey] = {
 					datePeriod,
