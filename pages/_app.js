@@ -88,7 +88,7 @@ function	AppWrapper(props) {
 				<p className={'pr-6 ml-auto text-gray-blue-1'}>
 					{'Data provided by '}
 					<a href={'https://www.yfistats.com/'} target={'_blank'} rel={'noreferrer'} className={'text-yearn-blue'}>
-						{'yfistats'}
+						{'yfiStats'}
 					</a>
 				</p>
 			</Footer>
