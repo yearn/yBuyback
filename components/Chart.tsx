@@ -176,6 +176,7 @@ const BuybackChart = React.memo(function BuybackChart({graphData}: {graphData: a
 	return (
 		<div className={'h-102'}>
 			<div id={'legend-container'} />
+			<span onClick={doNothing} className={'hidden'} />
 			<div className={'px-6 mt-4'}>
 				<Bar
 					style={{height: 376, maxHeight: 376}}
