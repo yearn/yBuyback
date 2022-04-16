@@ -1,29 +1,37 @@
-import	React		from	'react';
-// eslint-disable-next-line no-unused-vars
-import	Chart		from	'chart.js/auto';
-import	{Bar}		from	'react-chartjs-2';
+import	React, {ReactElement}	from	'react';
+import	Chart					from	'chart.js/auto';
+import	{Bar}					from	'react-chartjs-2';
 
-const getOrCreateLegendList = (_, id) => {
-	if (typeof(window) === 'undefined') return;
+//We have to do that to avoid a weird issue with Chartjs
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/explicit-function-return-type
+function	doNothing() {
+	Chart;
+}
+
+const getOrCreateLegendList = (_: unknown, id: string): HTMLUListElement | null => {
+	if (typeof(window) === 'undefined') return null;
 	const legendContainer = document.getElementById(id);
-	let listContainer = legendContainer.querySelector('ul');
-	if (!listContainer) {
-		listContainer = document.createElement('ul');
-		listContainer.style.display = 'flex';
-		listContainer.style.justifyContent = 'space-between';
-		listContainer.style.flexDirection = 'row';
-		listContainer.style.margin = 0;
-		listContainer.style.padding = 0;
-		legendContainer.appendChild(listContainer);
+	if (legendContainer) {
+		let listContainer = legendContainer.querySelector('ul');
+		if (!listContainer) {
+			listContainer = document.createElement('ul');
+			listContainer.style.display = 'flex';
+			listContainer.style.justifyContent = 'space-between';
+			listContainer.style.flexDirection = 'row';
+			listContainer.style.margin = '0px';
+			listContainer.style.padding = '0px';
+			legendContainer.appendChild(listContainer);
+		}
+		return listContainer;
 	}
-  
-	return listContainer;
+	return null;
 };
   
 const htmlLegendPlugin = {
 	id: 'htmlLegend',
-	afterUpdate(chart, _, options) {
+	afterUpdate(chart: any, _: never, options: any): void {
 		const ul = getOrCreateLegendList(chart, options.containerID);
+		if (!ul) return;
   
 		// Remove old legend items
 		while (ul.firstChild) {
@@ -32,7 +40,7 @@ const htmlLegendPlugin = {
   
 		// Reuse the built-in legendItems generator
 		const items = chart.options.plugins.legend.labels.generateLabels(chart);
-		items.forEach((item) => {
+		items.forEach((item: any): void => {
 			const li = document.createElement('li');
 			li.style.alignItems = 'center';
 			li.style.cursor = 'pointer';
@@ -40,7 +48,7 @@ const htmlLegendPlugin = {
 			li.style.flexDirection = item.text === '$, m' ? 'row-reverse' : 'row';
 			li.style.marginLeft = '0px';
   
-			li.onclick = () => {
+			li.onclick = (): void => {
 				chart.setDatasetVisibility(item.datasetIndex, !chart.isDatasetVisible(item.datasetIndex));
 				chart.update();
 			};
@@ -59,9 +67,9 @@ const htmlLegendPlugin = {
   
 			// Text
 			const textContainer = document.createElement('p');
-			textContainer.className = 'text-yearn-blue font-bold text-sm';
-			textContainer.style.margin = 0;
-			textContainer.style.padding = 0;
+			textContainer.className = 'text-primary font-bold text-sm';
+			textContainer.style.margin = '0px';
+			textContainer.style.padding = '0px';
 			textContainer.style.textDecoration = item.hidden ? 'line-through' : '';
   
 			const text = document.createTextNode(item.text);
@@ -81,33 +89,33 @@ const	desktopGraphOptions = {
 	barPercentage: 1,
 	interaction: {
 		intersect: false,
-		mode: 'index',
+		mode: 'index'
 	},
 	scales: {
 		x: {
 			stacked: true,
 			grid: {
 				display: false,
-				drawBorder: false,
+				drawBorder: false
 			}
 		},
 		y: {
 			beginAtZero: true,
 			grid: {
 				display: false,
-				drawBorder: false,
+				drawBorder: false
 			},
 			min: 0,
-			max: 200,
+			max: 200
 		},
 		usd: {
 			beginAtZero: true,
 			grid: {
 				display: false,
-				drawBorder: false,
+				drawBorder: false
 			},
 			type: 'linear',
-			position: 'right',
+			position: 'right'
 		}
 	},
 	elements: {
@@ -129,21 +137,21 @@ const	desktopGraphOptions = {
 			titleColor: '#001746',
 			titleMarginBottom: 8,
 			bodyColor: '#001746',
-			footerColor: '#001746',
+			footerColor: '#001746'
 		},
 		htmlLegend: {
-			containerID: 'legend-container',
+			containerID: 'legend-container'
 		},
 		legend: {
-			display: false,
+			display: false
 		}
-	},
+	}
 };
 
-const BuybackChart = React.memo(function BuybackChart({graphData}) {
+const BuybackChart = React.memo(function BuybackChart({graphData}: {graphData: any}): ReactElement {
 	const	chartRef = React.useRef(null);
 	const	data = {
-		labels: Object.values(graphData).map(({datePeriod}) => datePeriod),
+		labels: Object.values(graphData).map(({datePeriod}: any): string => datePeriod),
 		datasets: [
 			{
 				type: 'bar',
@@ -151,7 +159,7 @@ const BuybackChart = React.memo(function BuybackChart({graphData}) {
 				borderColor: '#E0EAFF',
 				backgroundColor: '#0657F9',
 				barPercentage: 0.7,
-				data: Object.values(graphData).map(({yfiAmount}) => yfiAmount),
+				data: Object.values(graphData).map(({yfiAmount}: any): number => Number(yfiAmount))
 			},
 			{
 				type: 'bar',
@@ -160,7 +168,7 @@ const BuybackChart = React.memo(function BuybackChart({graphData}) {
 				backgroundColor: '#E0EAFF',
 				borderWidth: 0,
 				barPercentage: 1,
-				data: Object.values(graphData).map(({usdValue}) => usdValue / 1_000_000),
+				data: Object.values(graphData).map(({usdValue}: any): number => Number(usdValue / 1_000_000))
 			}
 		]
 	};
@@ -172,9 +180,9 @@ const BuybackChart = React.memo(function BuybackChart({graphData}) {
 				<Bar
 					style={{height: 376, maxHeight: 376}}
 					ref={chartRef}
-					options={desktopGraphOptions}
+					options={desktopGraphOptions as any}
 					plugins={[htmlLegendPlugin]}
-					data={data} />
+					data={data as any} />
 			</div>
 		</div>
 	);
