@@ -191,7 +191,6 @@ function	RowFooter({data}: {data: TGraphDataElement[]}): ReactElement {
 }
 
 function	Index({data}: {data: any}): ReactElement | null {
-	console.log(data);
 	const	{isActive, provider} = useWeb3();
 	const	{userStatus, status, getStatus, getUserStatus} = useBuyback();
 	const	[sortBy, set_sortBy] = React.useState('time');
