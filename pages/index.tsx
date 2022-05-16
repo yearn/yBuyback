@@ -1,6 +1,7 @@
 import	React, {ReactElement}				from	'react';
 import	{GetServerSideProps}				from	'next';
 import	{ethers}							from	'ethers';
+import	{request}							from	'graphql-request';
 import	{Parser}							from	'json2csv';
 import	{LinkOut}							from	'@yearn/web-lib/icons';
 import	{Card}								from	'@yearn/web-lib/components';
@@ -190,6 +191,7 @@ function	RowFooter({data}: {data: TGraphDataElement[]}): ReactElement {
 }
 
 function	Index({data}: {data: any}): ReactElement | null {
+	console.log(data);
 	const	{isActive, provider} = useWeb3();
 	const	{userStatus, status, getStatus, getUserStatus} = useBuyback();
 	const	[sortBy, set_sortBy] = React.useState('time');
@@ -422,8 +424,57 @@ function	Index({data}: {data: any}): ReactElement | null {
 	);
 }
 
+type	TData = {
+	id: number | string,
+	timestamp: string,
+	yfiAmount: number,
+	usdValue: number,
+	tokenAmount: number,
+	token: string,
+	hash: string,
+}
 export const getServerSideProps: GetServerSideProps = async (): Promise<any> => {
-	return {props: {data: await getBuybacks()}};
+	const	formatTimestamp = (timestamp: number): string => {
+		const	date = new Date(timestamp * 1000);
+		const	year = date.getFullYear();
+		const	month = date.getMonth() + 1;
+		const	day = date.getDate();
+		const	hours = date.getHours();
+		const	minutes = date.getMinutes();
+		const	seconds = date.getSeconds();
+		return `${year}-${month < 10 ? `0${month}` : month}-${day < 10 ? `0${day}` : day} ${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+	};
+
+	const	[{buyBacks}, _legacyData] = await Promise.all([
+		request('https://api.thegraph.com/subgraphs/name/yearn/yfi-buyback', `{
+			buyBacks(first: 5) {
+				id
+				block
+				timestamp
+				seller
+				yfi
+				dai
+			}
+		}`),
+		getBuybacks()
+	]);
+
+	const	dynamicData: TData[] = buyBacks.map((buyBack: any): TData => ({
+		id: buyBack.id,
+		timestamp: formatTimestamp(buyBack.timestamp),
+		yfiAmount: toNormalizedValue(buyBack.yfi),
+		usdValue: toNormalizedValue(buyBack.dai),
+		tokenAmount: toNormalizedValue(buyBack.dai),
+		token: 'DAI',
+		hash: buyBack.id
+	}));
+	const	legacyData: TData[] = _legacyData as unknown as TData[];
+
+
+	return {props: {data: [
+		...legacyData,
+		...dynamicData
+	]}};
 };
 
 export default Index;
