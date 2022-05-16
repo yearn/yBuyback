@@ -197,7 +197,7 @@ function	Index({data}: {data: any}): ReactElement | null {
 	const	[sortBy, set_sortBy] = React.useState('time');
 	const	[sortedData, set_sortedData] = React.useState([...data].reverse());
 	const	[graphData, set_graphData] = React.useState<TGraphData>({});
-	const	[totalInfo, set_totalInfo] = React.useState({yfiAmount: 0, usdValue: 0});
+	const	[totalInfo, set_totalInfo] = React.useState({yfiAmount: 0, usdValue: 0, loaded: false});
 	const	[userBalanceOfDai, set_userBalanceOfDai] = React.useState(ethers.constants.Zero);
 	const	[userBalanceOfYfi, set_userBalanceOfYfi] = React.useState(ethers.constants.Zero);
 	const	[txStatusApprove, set_txStatusApprove] = React.useState(defaultTxStatus);
@@ -268,7 +268,7 @@ function	Index({data}: {data: any}): ReactElement | null {
 		}
 		
 		set_graphData(arr);
-		set_totalInfo({yfiAmount: totalYfiAmount, usdValue: totalUSDValue});
+		set_totalInfo({yfiAmount: totalYfiAmount, usdValue: totalUSDValue, loaded: true});
 	}, [data]);
 
 	async function	onSell(): Promise<void> {
@@ -303,7 +303,7 @@ function	Index({data}: {data: any}): ReactElement | null {
 				<div className={'mt-4 mb-6 space-y-4 md:mb-10'}>
 					<p className={'text-typo-secondary'}>{'YFI is an important part of how we build Yearn. It’s one of the ways we pay for the best DeFi talent, ensuring that the incentives of those building the protocol align with the protocol itself. After all, skin in the game is the best way to play.'}</p>
 					<p className={'text-typo-secondary'}>
-						{`We’ve bought ${format.amount(totalInfo.yfiAmount, 2, 2)} YFI to date, and we still want more. The buyback `}
+						{`We’ve bought ${!totalInfo.loaded ? '-' : format.amount(totalInfo.yfiAmount, 2, 2)} YFI to date, and we still want more. The buyback `}
 						<a href={'https://etherscan.io/address/0xdf5e4e54d212f7a01cf94b3986f40933fcff589f'} target={'_blank'} rel={'noreferrer'} className={'underline'}>
 							{'contract'}
 						</a>
@@ -313,15 +313,15 @@ function	Index({data}: {data: any}): ReactElement | null {
 				<div className={'grid grid-cols-2 gap-4 md:grid-cols-3'}>
 					<div>
 						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Current YFI price'}</p>
-						<b className={'text-lg md:text-xl'}>{`${toNormalizedAmount(status.price)} DAI`}</b>
+						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '-' : toNormalizedAmount(status.price)} DAI`}</b>
 					</div>
 					<div>
 						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Remaining to buy'}</p>
-						<b className={'text-lg md:text-xl'}>{`${toNormalizedAmount(status.balanceOf)} YFI`}</b>
+						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '-' : toNormalizedAmount(status.balanceOf)} YFI`}</b>
 					</div>
 					<div>
 						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Available'}</p>
-						<b className={'text-lg md:text-xl'}>{`${toNormalizedAmount(userBalanceOfDai)} DAI`}</b>
+						<b className={'text-lg md:text-xl'}>{`${!userStatus.loaded ? '-' : toNormalizedAmount(userBalanceOfDai)} DAI`}</b>
 					</div>
 
 				</div>
@@ -342,7 +342,7 @@ function	Index({data}: {data: any}): ReactElement | null {
 								price={toNormalizedValue(status.price)}
 								value={amount}
 								onSetValue={(s: string): void => set_amount(s)}
-								maxValue={userBalanceOfYfi || 0}
+								maxValue={status.balanceOf.gte(userBalanceOfYfi) ? userBalanceOfYfi : status.balanceOf}
 								decimals={18} />
 						</div>
 					</div>
@@ -447,7 +447,7 @@ export const getServerSideProps: GetServerSideProps = async (): Promise<any> => 
 
 	const	[{buyBacks}, _legacyData] = await Promise.all([
 		request('https://api.thegraph.com/subgraphs/name/yearn/yfi-buyback', `{
-			buyBacks(first: 5) {
+			buyBacks(first: 1000) {
 				id
 				block
 				timestamp

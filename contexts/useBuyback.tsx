@@ -10,11 +10,13 @@ type	TStatus = {
 	price: BigNumber,
 	maxAmount: BigNumber,
 	balanceOf: BigNumber,
+	loaded: boolean
 }
 type	TUserStatus = {
 	balanceOfDai: BigNumber,
 	balanceOfYfi: BigNumber,
 	allowanceOfYfi: BigNumber,
+	loaded: boolean
 }
 type	TBuyback = {
 	status: TStatus
@@ -26,12 +28,14 @@ const	defaultProps = {
 	status: {
 		price: ethers.constants.Zero,
 		maxAmount: ethers.constants.Zero,
-		balanceOf: ethers.constants.Zero
+		balanceOf: ethers.constants.Zero,
+		loaded: false
 	},
 	userStatus: {
 		balanceOfDai: ethers.constants.Zero,
 		balanceOfYfi: ethers.constants.Zero,
-		allowanceOfYfi: ethers.constants.Zero
+		allowanceOfYfi: ethers.constants.Zero,
+		loaded: false
 	},
 	getStatus: async (): Promise<void> => undefined,
 	getUserStatus: async (): Promise<void> => undefined
@@ -68,7 +72,7 @@ export const BuybackContextApp = ({children}: {children: ReactElement}): ReactEl
 		const	results = await ethcallProvider.tryAll(calls) as [BigNumber, BigNumber, BigNumber, BigNumber];
 		performBatchedUpdates((): void => {
 			const	[price, maxAmount, balanceOf] = results;
-			set_status({price, maxAmount, balanceOf});
+			set_status({price, maxAmount, balanceOf, loaded: true});
 			set_nonce((n: number): number => n + 1);
 		});
 	}, [provider]);
@@ -95,7 +99,7 @@ export const BuybackContextApp = ({children}: {children: ReactElement}): ReactEl
 		performBatchedUpdates((): void => {
 			const	[balanceOfDai, balanceOfYfi, allowanceOfYfi] = results;
 
-			set_userStatus({balanceOfDai, balanceOfYfi, allowanceOfYfi});
+			set_userStatus({balanceOfDai, balanceOfYfi, allowanceOfYfi, loaded: true});
 			set_nonce((n: number): number => n + 1);
 		});
 	}, [address, provider]);
