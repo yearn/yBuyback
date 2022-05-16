@@ -6,6 +6,7 @@ import	Footer					from	'components/StandardFooter';
 import	HeaderTitle				from	'components/HeaderTitle';
 import	{WithYearn}				from	'@yearn/web-lib';
 import	{Header}				from	'@yearn/web-lib/layouts';
+import	{BuybackContextApp}		from	'contexts/useBuyback';
 import	'../style.css';
 
 function	AppHead(): ReactElement {
@@ -66,9 +67,11 @@ function	AppWrapper(props: AppProps): ReactElement {
 	return (
 		<>
 			<AppHead />
-			<Header shouldUseWallets={true}>
-				<HeaderTitle />
-			</Header>
+			<div className={'px-4 mx-auto w-full'}>
+				<Header shouldUseWallets={true}>
+					<HeaderTitle />
+				</Header>
+			</div>
 			<main
 				id={'app'}
 				className={'flex flex-col col-span-12 px-4 w-full min-h-[100vh] transition-colors'}>
@@ -95,10 +98,12 @@ function	MyApp(props: AppProps): ReactElement {
 
 	return (
 		<WithYearn>
-			<AppWrapper
-				Component={Component}
-				pageProps={pageProps}
-				router={props.router} />
+			<BuybackContextApp>
+				<AppWrapper
+					Component={Component}
+					pageProps={pageProps}
+					router={props.router} />
+			</BuybackContextApp>
 		</WithYearn>
 	);
 }
