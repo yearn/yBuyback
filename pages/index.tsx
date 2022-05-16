@@ -1,16 +1,25 @@
-import	React, {ReactElement}			from	'react';
-import	{GetServerSideProps}			from	'next';
-import	{Parser}						from	'json2csv';
-import	{LinkOut}						from	'@yearn/web-lib/icons';
-import	{Card}							from	'@yearn/web-lib/components';
-import	{List}							from	'@yearn/web-lib/layouts';
-import	{format}						from	'@yearn/web-lib/utils';
-import	{usePrices}						from	'@yearn/web-lib/contexts';
-import	BuybackChart					from	'components/Chart';
-import	{TableHead, TableHeadCell}		from	'components/TableHeadCell';
-import type {TTableHead}				from	'components/TableHeadCell';
-import	{getBuybacks}					from	'pages/api/buyback-as-json';
-import	{sortByKey, sum, toSafeDate}	from	'utils';
+import	React, {ReactElement}				from	'react';
+import	{GetServerSideProps}				from	'next';
+import	{ethers}							from	'ethers';
+import	{Parser}							from	'json2csv';
+import	{LinkOut}							from	'@yearn/web-lib/icons';
+import	{Card}								from	'@yearn/web-lib/components';
+import	{List}								from	'@yearn/web-lib/layouts';
+import	{format}							from	'@yearn/web-lib/utils';
+import	{usePrices, useWeb3}				from	'@yearn/web-lib/contexts';
+import	LogoYearn							from	'components/icons/LogoYearn';
+import	Input								from	'components/Input';
+import	LogoDai								from	'components/icons/LogoDai';
+import	BuybackChart						from	'components/Chart';
+import	Button								from	'components/Button';
+import	{TableHead, TableHeadCell}			from	'components/TableHeadCell';
+import type {TTableHead}					from	'components/TableHeadCell';
+import	useBuyback							from	'contexts/useBuyback';
+import	{getBuybacks}						from	'pages/api/buyback-as-json';
+import	{Transaction, defaultTxStatus}		from	'utils/tx';
+import	{approveERC20}						from	'utils/actions/approveToken';
+import	{sell}								from	'utils/actions/sell';
+import	{sortByKey, sum, toSafeDate, toNormalizedAmount, toNormalizedValue, toSafeAmount}	from	'utils';
 
 type		TRowElement = {
 	data: any,
@@ -181,10 +190,23 @@ function	RowFooter({data}: {data: TGraphDataElement[]}): ReactElement {
 }
 
 function	Index({data}: {data: any}): ReactElement | null {
+	const	{isActive, provider} = useWeb3();
+	const	{userStatus, status, getStatus, getUserStatus} = useBuyback();
 	const	[sortBy, set_sortBy] = React.useState('time');
 	const	[sortedData, set_sortedData] = React.useState([...data].reverse());
 	const	[graphData, set_graphData] = React.useState<TGraphData>({});
 	const	[totalInfo, set_totalInfo] = React.useState({yfiAmount: 0, usdValue: 0});
+	const	[userBalanceOfDai, set_userBalanceOfDai] = React.useState(ethers.constants.Zero);
+	const	[userBalanceOfYfi, set_userBalanceOfYfi] = React.useState(ethers.constants.Zero);
+	const	[txStatusApprove, set_txStatusApprove] = React.useState(defaultTxStatus);
+	const	[txStatusSell, set_txStatusSell] = React.useState(defaultTxStatus);
+	const	[amount, set_amount] = React.useState('');
+	const	isGraphReady = !(!sortedData || sortedData.length === 0);
+
+	React.useEffect((): void => {
+		set_userBalanceOfDai(userStatus.balanceOfDai || '0');
+		set_userBalanceOfYfi(userStatus.balanceOfYfi || '0');
+	}, [userStatus]);
 
 	React.useEffect((): void => {
 		let _data = data.map((a: any): unknown => ({...a}));
@@ -247,34 +269,155 @@ function	Index({data}: {data: any}): ReactElement | null {
 		set_totalInfo({yfiAmount: totalYfiAmount, usdValue: totalUSDValue});
 	}, [data]);
 
-	if (!sortedData || sortedData.length === 0) {
-		return null;
+	async function	onSell(): Promise<void> {
+		if (txStatusSell.pending)
+			return;
+		await new Transaction(provider, sell, set_txStatusSell)
+			.populate(
+				toSafeAmount(amount, userBalanceOfYfi)
+			).onSuccess(async (): Promise<void> => {
+				await Promise.all([getStatus(), getUserStatus()]);
+				set_amount('');
+			}).perform();
+	}
+
+	async function	onApprove(): Promise<void> {
+		if (txStatusApprove.pending)
+			return;
+		await new Transaction(provider, approveERC20, set_txStatusApprove)
+			.populate(
+				process.env.YFI_ADDR as string,
+				process.env.BUYBACK_ADDR as string,
+				toSafeAmount(amount, userBalanceOfYfi)
+			).onSuccess(async (): Promise<void> => {
+				await getUserStatus();
+			}).perform();
 	}
 
 	return (
-		<div className={'overflow-x-scroll justify-center items-center mx-auto w-full max-w-6xl'}>
-			<Card className={'hidden w-full h-136 md:block'}>
-				<div className={'flex flex-row mb-6 space-x-11'}>
-					<div className={'flex flex-col'}>
-						<p className={'mb-2 text-typo-secondary'}>{'Buyback over time'}</p>
-						<p className={'text-xl font-bold text-dark-blue-1'}>
-							{`${format.amount(totalInfo.yfiAmount, 4)} YFI`}
-						</p>
+		<div className={'grid grid-cols-12 gap-4 mx-auto w-full max-w-6xl'}>
+			<Card className={'col-span-12 md:col-span-7'}>
+				<h2 className={'text-xl font-bold text-typo-primary'}>{'Yearn wants your YFI'}</h2>
+				<div className={'mt-4 mb-6 space-y-4 md:mb-10'}>
+					<p className={'text-typo-secondary'}>{'YFI is an important part of how we build Yearn. It’s one of the ways we pay for the best DeFi talent, ensuring that the incentives of those building the protocol align with the protocol itself. After all, skin in the game is the best way to play.'}</p>
+					<p className={'text-typo-secondary'}>
+						{`We’ve bought ${format.amount(totalInfo.yfiAmount, 2, 2)} YFI to date, and we still want more. The buyback `}
+						<a href={'https://etherscan.io/address/0xdf5e4e54d212f7a01cf94b3986f40933fcff589f'} target={'_blank'} rel={'noreferrer'} className={'underline'}>
+							{'contract'}
+						</a>
+						{' is topped up from time to time with more DAI, so it’s worth revisiting this page in the future.'}</p>
+					<p className={'text-typo-secondary'}>{'So, do us a favor and sell us your YFI.'}</p>
+				</div>
+				<div className={'grid grid-cols-2 gap-4 md:grid-cols-3'}>
+					<div>
+						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Current YFI price'}</p>
+						<b className={'text-lg md:text-xl'}>{`${toNormalizedAmount(status.price)} DAI`}</b>
 					</div>
-					<div className={'flex flex-col'}>
-						<p className={'mb-2 text-typo-secondary'}>{'In USD'}</p>
-						<p className={'text-xl font-bold text-dark-blue-1'}>
-							{`$ ${format.amount(totalInfo.usdValue, 2)}`}
-						</p>
+					<div>
+						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Remaining to buy'}</p>
+						<b className={'text-lg md:text-xl'}>{`${toNormalizedAmount(status.balanceOf)} YFI`}</b>
+					</div>
+					<div>
+						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Available'}</p>
+						<b className={'text-lg md:text-xl'}>{`${toNormalizedAmount(userBalanceOfDai)} DAI`}</b>
+					</div>
+
+				</div>
+			</Card>
+			<Card className={'col-span-12 md:col-span-5'}>
+				<div>
+					<p className={'text-typo-secondary'}>{'You sell'}</p>
+					<div className={'flex flex-row mt-2 space-x-2'}>
+						<div className={'aspect-square flex flex-col justify-center items-center w-24 rounded-lg md:w-32 md:min-w-32 min-w-24 bg-background'}>
+							<LogoYearn className={'w-8 h-8 md:w-12 md:h-12'}/>
+							<div className={'mt-2 md:mt-4'}>
+								<b>{'YFI'}</b>
+							</div>
+						</div>
+						<div className={'flex flex-col py-2 px-4 w-full h-24 rounded-lg md:py-4 md:px-6 md:h-32 bg-background'}>
+							<Input.BigNumber
+								balance={toNormalizedAmount(userBalanceOfYfi)}
+								price={toNormalizedValue(status.price)}
+								value={amount}
+								onSetValue={(s: string): void => set_amount(s)}
+								maxValue={userBalanceOfYfi || 0}
+								decimals={18} />
+						</div>
 					</div>
 				</div>
-				{graphData ? <BuybackChart graphData={graphData} /> : null}
+				<div className={'my-4'}>
+					<p className={'text-typo-secondary'}>{'You receive'}</p>
+					<div className={'flex flex-row mt-2 space-x-2'}>
+						<div className={'aspect-square flex flex-col justify-center items-center w-24 rounded-lg border md:w-32 md:min-w-32 min-w-24 bg-surface border-icons-primary'}>
+							<LogoDai className={'w-8 h-8 md:w-12 md:h-12'}/>
+							<div className={'mt-2 md:mt-4'}>
+								<b>{'DAI'}</b>
+							</div>
+						</div>
+						<div className={'flex flex-col py-2 px-4 w-full h-24 rounded-lg border md:py-4 md:px-6 md:h-32 bg-surface border-icons-primary'}>
+							<Input.BigNumber
+								disabled
+								balance={toNormalizedAmount(userBalanceOfDai)}
+								price={1}
+								value={(Number(amount || 0) * toNormalizedValue(status.price)).toFixed(2)}
+								onSetValue={(): void => undefined}
+								decimals={18}
+								withMax={false} />
+						</div>
+					</div>
+				</div>
+				<div className={'grid grid-cols-2 gap-2'}>
+					<Button
+						onClick={onApprove}
+						isBusy={txStatusApprove.pending}
+						isDisabled={
+							!isActive
+							|| amount === '' || Number(amount) === 0 
+							|| Number(amount) > Number(format.units(userBalanceOfYfi || 0, 18))
+							|| Number(amount) <= Number(format.units(userStatus.allowanceOfYfi || 0, 18))
+
+						}>
+						{txStatusApprove.error ? 'Transaction failed' : txStatusApprove.success ? 'Transaction successful' : 'Approve'}
+					</Button>
+					<Button
+						onClick={onSell}
+						isBusy={txStatusSell.pending}
+						isDisabled={
+							!isActive
+							|| amount === '' || Number(amount) === 0 
+							|| Number(amount) > Number(format.units(userStatus.allowanceOfYfi || 0, 18))
+						}>
+						{txStatusSell.error ? 'Transaction failed' : txStatusSell.success ? 'Transaction successful' : 'Sell'}
+					</Button>
+				</div>
+
 			</Card>
-			<div className={'flex overflow-x-scroll relative flex-col grid-cols-22 w-[1200px] md:block md:h-auto scrollbar-none'}>
-				<RowHead sortBy={sortBy} set_sortBy={set_sortBy} />
-				<RowsWrapper sortedData={sortedData} />
-				<RowFooter data={data} />
-			</div>
+			{!isGraphReady ? null :
+				<div className={'overflow-x-scroll col-span-12 justify-center items-center'}>
+					<Card className={'hidden w-full h-136 md:block'}>
+						<div className={'flex flex-row mb-6 space-x-11'}>
+							<div className={'flex flex-col'}>
+								<p className={'mb-2 text-typo-secondary'}>{'Buyback over time'}</p>
+								<p className={'text-xl font-bold text-dark-blue-1'}>
+									{`${format.amount(totalInfo.yfiAmount, 4)} YFI`}
+								</p>
+							</div>
+							<div className={'flex flex-col'}>
+								<p className={'mb-2 text-typo-secondary'}>{'In USD'}</p>
+								<p className={'text-xl font-bold text-dark-blue-1'}>
+									{`$ ${format.amount(totalInfo.usdValue, 2)}`}
+								</p>
+							</div>
+						</div>
+						{graphData ? <BuybackChart graphData={graphData} /> : null}
+					</Card>
+					<div className={'flex overflow-x-scroll relative flex-col grid-cols-22 w-[1200px] md:block md:h-auto scrollbar-none'}>
+						<RowHead sortBy={sortBy} set_sortBy={set_sortBy} />
+						<RowsWrapper sortedData={sortedData} />
+						<RowFooter data={data} />
+					</div>
+				</div>
+			}
 		</div>
 	);
 }
