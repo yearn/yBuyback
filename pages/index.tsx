@@ -329,7 +329,7 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 					</div>
 					<div>
 						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Available'}</p>
-						<b className={'text-lg md:text-xl'}>{`${!userStatus.loaded ? '-' : toNormalizedAmount(status.balanceOfDai)} DAI`}</b>
+						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '-' : toNormalizedAmount(status.balanceOfDai)} DAI`}</b>
 					</div>
 
 				</div>
