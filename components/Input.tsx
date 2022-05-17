@@ -1,4 +1,4 @@
-import	React, {ReactElement}				from	'react';
+import	React, {MutableRefObject, ReactElement}				from	'react';
 import	{BigNumber, ethers}					from	'ethers';
 import	{format, performBatchedUpdates}		from	'@yearn/web-lib/utils';
 import	{toNormalizedValue}					from	'utils';
@@ -21,6 +21,7 @@ function	InputBase({
 	className,
 	...props
 }: TInput): ReactElement {
+	const	focusRef = React.useRef<MutableRefObject<HTMLInputElement | undefined> | any>();
 	return (
 		<form
 			name={ariaLabel}
@@ -34,6 +35,7 @@ function	InputBase({
 				className={`flex flex-row items-center py-2 h-8 w-full transition-colors ${className}`}>
 				<span className={'sr-only'}>{ariaLabel}</span>
 				<input
+					ref={focusRef}
 					value={value}
 					onChange={(e): void => onChange(e.target.value)}
 					type={'text'}
@@ -41,7 +43,16 @@ function	InputBase({
 					{...props} />
 				{withMax ? <div
 					className={'py-1 px-2 ml-2 rounded-lg border transition-colors cursor-pointer border-primary text-primary hover:bg-button-outlined-variant'}
-					onClick={(): void => onMaxClick ? onMaxClick() : undefined}>
+					onClick={(e): void => {
+						e.stopPropagation();
+						e.preventDefault();
+						if (onMaxClick) {
+							onMaxClick();
+							if (focusRef.current) {
+								(focusRef.current as unknown as HTMLInputElement).blur();
+							}
+						}
+					}}>
 					{'Max'}
 				</div> : null}
 			</div>

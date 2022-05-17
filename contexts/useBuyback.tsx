@@ -9,7 +9,8 @@ import 	{BigNumber, ethers}										from	'ethers';
 type	TStatus = {
 	price: BigNumber,
 	maxAmount: BigNumber,
-	balanceOf: BigNumber,
+	balanceOfDai: BigNumber,
+	balanceOfYfi: BigNumber,
 	loaded: boolean
 }
 type	TUserStatus = {
@@ -28,7 +29,8 @@ const	defaultProps = {
 	status: {
 		price: ethers.constants.Zero,
 		maxAmount: ethers.constants.Zero,
-		balanceOf: ethers.constants.Zero,
+		balanceOfDai: ethers.constants.Zero,
+		balanceOfYfi: ethers.constants.Zero,
 		loaded: false
 	},
 	userStatus: {
@@ -60,19 +62,22 @@ export const BuybackContextApp = ({children}: {children: ReactElement}): ReactEl
 	**	Fetch the element independant of user's wallet
 	***************************************************************************/
 	const getStatus = React.useCallback(async (): Promise<void> => {
-		const	ethcallProvider = await providers.newEthCallProvider(provider || providers.getProvider(1));
+		const	ethcallProvider = await providers.newEthCallProvider(provider || providers.getProvider(1337));
 		const	buyback = new Contract(process.env.BUYBACK_ADDR as string, BUYBACK_ABI);
 		const	yfiToken = new Contract(process.env.YFI_ADDR as string, ERC20_ABI);
+		const	daiToken = new Contract(process.env.DAI_ADDR as string, ERC20_ABI);
 
 		const	calls = [
 			buyback.price(),
 			buyback.max_amount(),
-			yfiToken.balanceOf(process.env.YFI_ADDR as string)
+			yfiToken.balanceOf(process.env.BUYBACK_ADDR as string),
+			daiToken.balanceOf(process.env.BUYBACK_ADDR as string)
 		];
 		const	results = await ethcallProvider.tryAll(calls) as [BigNumber, BigNumber, BigNumber, BigNumber];
 		performBatchedUpdates((): void => {
-			const	[price, maxAmount, balanceOf] = results;
-			set_status({price, maxAmount, balanceOf, loaded: true});
+			const	[price, maxAmount, balanceOfYfi, balanceOfDai] = results;
+			console.log(balanceOfDai.toString());
+			set_status({price, maxAmount, balanceOfYfi, balanceOfDai, loaded: true});
 			set_nonce((n: number): number => n + 1);
 		});
 	}, [provider]);

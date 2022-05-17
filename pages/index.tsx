@@ -1,6 +1,6 @@
 import	React, {ReactElement}				from	'react';
 import	{GetServerSideProps}				from	'next';
-import	{ethers}							from	'ethers';
+import	{BigNumber, ethers}							from	'ethers';
 import	{request}							from	'graphql-request';
 import	{Parser}							from	'json2csv';
 import	{LinkOut}							from	'@yearn/web-lib/icons';
@@ -128,7 +128,7 @@ function	RowHead({sortBy, set_sortBy}: TTableHead): ReactElement {
 	);
 }
 
-function	RowFooter({data}: {data: TGraphDataElement[]}): ReactElement {
+function	RowFooter({data}: {data: TData[]}): ReactElement {
 	function	prepareCSV(): void {
 		const	fields = ['id', 'timestamp', 'yfiAmount', 'usdValue', 'tokenAmount', 'token', 'hash'];
 		try {
@@ -163,12 +163,12 @@ function	RowFooter({data}: {data: TGraphDataElement[]}): ReactElement {
 			</div>
 			<div className={'justify-end items-start min-w-36 row-3'}>
 				<div className={'font-bold tabular-nums text-right text-dark-blue-1'}>
-					{`${format.amount(sum(data.map((e: TGraphDataElement): number => e.yfiAmount)), 12, 8)}`}
+					{`${format.amount(sum(data.map((e: TData): number => e.yfiAmount)), 12, 8)}`}
 				</div>
 			</div>
 			<div className={'justify-end items-start min-w-36 row-4'}>
 				<div className={'font-bold tabular-nums text-right text-dark-blue-1'}>
-					{`$ ${format.amount(sum(data.map((e: TGraphDataElement): number => e.usdValue)), 2)}`}
+					{`$ ${format.amount(sum(data.map((e: TData): number => e.usdValue)), 2)}`}
 				</div>
 			</div>
 			<div className={'justify-end items-start min-w-36 row-4'}>
@@ -190,7 +190,8 @@ function	RowFooter({data}: {data: TGraphDataElement[]}): ReactElement {
 	);
 }
 
-function	Index({data}: {data: any}): ReactElement | null {
+function	Index({data}: {data: TData[]}): ReactElement | null {
+	console.log(data);
 	const	{isActive, provider} = useWeb3();
 	const	{userStatus, status, getStatus, getUserStatus} = useBuyback();
 	const	[sortBy, set_sortBy] = React.useState('time');
@@ -210,7 +211,7 @@ function	Index({data}: {data: any}): ReactElement | null {
 	}, [userStatus]);
 
 	React.useEffect((): void => {
-		let _data = data.map((a: any): unknown => ({...a}));
+		let _data = data.map((a: TData): TData => ({...a}));
 
 		if (sortBy === 'time') {
 			_data = sortByKey(_data, 'timestamp', -1);
@@ -223,7 +224,7 @@ function	Index({data}: {data: any}): ReactElement | null {
 	}, [sortBy, data]);
 
 	React.useEffect((): void => {
-		const _data = data.map((a: any): unknown => ({...a}));
+		const _data = data.map((a: any): TData => ({...a}));
 
 		let		totalYfiAmount = 0;
 		let		totalUSDValue = 0;
@@ -295,6 +296,14 @@ function	Index({data}: {data: any}): ReactElement | null {
 			}).perform();
 	}
 
+	function	maxValue(): BigNumber {
+		//Determine if max amount in YFI is user's balance or contracts' Remaining to buy
+		let	expectedMaxAmount = userBalanceOfYfi;
+		if (userBalanceOfYfi.gte(status.maxAmount))
+			expectedMaxAmount = status.maxAmount;
+		return (expectedMaxAmount);
+	}
+
 	return (
 		<div className={'grid grid-cols-12 gap-4 mx-auto w-full max-w-6xl'}>
 			<Card className={'col-span-12 md:col-span-7'}>
@@ -316,11 +325,11 @@ function	Index({data}: {data: any}): ReactElement | null {
 					</div>
 					<div>
 						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Remaining to buy'}</p>
-						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '-' : toNormalizedAmount(status.balanceOf)} YFI`}</b>
+						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '-' : toNormalizedAmount(status.maxAmount)} YFI`}</b>
 					</div>
 					<div>
 						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Available'}</p>
-						<b className={'text-lg md:text-xl'}>{`${!userStatus.loaded ? '-' : toNormalizedAmount(userBalanceOfDai)} DAI`}</b>
+						<b className={'text-lg md:text-xl'}>{`${!userStatus.loaded ? '-' : toNormalizedAmount(status.balanceOfDai)} DAI`}</b>
 					</div>
 
 				</div>
@@ -341,7 +350,7 @@ function	Index({data}: {data: any}): ReactElement | null {
 								price={toNormalizedValue(status.price)}
 								value={amount}
 								onSetValue={(s: string): void => set_amount(s)}
-								maxValue={status.balanceOf.gte(userBalanceOfYfi) ? userBalanceOfYfi : status.balanceOf}
+								maxValue={maxValue()}
 								decimals={18} />
 						</div>
 					</div>
@@ -465,8 +474,9 @@ export const getServerSideProps: GetServerSideProps = async (): Promise<any> => 
 		usdValue: toNormalizedValue(buyBack.dai),
 		tokenAmount: toNormalizedValue(buyBack.dai),
 		token: 'DAI',
-		hash: buyBack.id
+		hash: (buyBack.id as string).split('-')[1]
 	}));
+	console.log(dynamicData);
 	const	legacyData: TData[] = _legacyData as unknown as TData[];
 
 
