@@ -62,7 +62,7 @@ export const BuybackContextApp = ({children}: {children: ReactElement}): ReactEl
 	**	Fetch the element independant of user's wallet
 	***************************************************************************/
 	const getStatus = React.useCallback(async (): Promise<void> => {
-		const	ethcallProvider = await providers.newEthCallProvider(provider || providers.getProvider(1337));
+		const	ethcallProvider = await providers.newEthCallProvider(provider || providers.getProvider(1));
 		const	buyback = new Contract(process.env.BUYBACK_ADDR as string, BUYBACK_ABI);
 		const	yfiToken = new Contract(process.env.YFI_ADDR as string, ERC20_ABI);
 		const	daiToken = new Contract(process.env.DAI_ADDR as string, ERC20_ABI);
