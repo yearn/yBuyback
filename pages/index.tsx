@@ -320,16 +320,16 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 				</div>
 				<div className={'grid grid-cols-2 gap-4 md:grid-cols-3'}>
 					<div>
-						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Current YFI price'}</p>
+						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Our piggybank has'}</p>
+						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '-' : toNormalizedAmount(status.balanceOfDai)} DAI`}</b>
+					</div>
+					<div>
+						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'We\'ll buy each YFI for'}</p>
 						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '-' : toNormalizedAmount(status.price)} DAI`}</b>
 					</div>
 					<div>
-						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Remaining to buy'}</p>
+						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'You can sell us max'}</p>
 						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '-' : toNormalizedAmount(status.maxAmount)} YFI`}</b>
-					</div>
-					<div>
-						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Available'}</p>
-						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '-' : toNormalizedAmount(status.balanceOfDai)} DAI`}</b>
 					</div>
 
 				</div>
