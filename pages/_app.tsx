@@ -67,14 +67,14 @@ function	AppWrapper(props: AppProps): ReactElement {
 	return (
 		<>
 			<AppHead />
-			<div className={'px-4 mx-auto w-full'}>
+			<div className={'mx-auto w-full max-w-6xl'}>
 				<Header shouldUseWallets={true}>
 					<HeaderTitle />
 				</Header>
 			</div>
 			<main
 				id={'app'}
-				className={'flex flex-col col-span-12 px-4 w-full min-h-[100vh] transition-colors'}>
+				className={'flex flex-col col-span-12 mx-auto w-full max-w-6xl min-h-[100vh] transition-colors'}>
 				<Component
 					key={router.route}
 					router={props.router}

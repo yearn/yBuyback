@@ -4,7 +4,7 @@ import	{BigNumber, ethers}							from	'ethers';
 import	{request}							from	'graphql-request';
 import	{Parser}							from	'json2csv';
 import	{LinkOut}							from	'@yearn/web-lib/icons';
-import	{Card}								from	'@yearn/web-lib/components';
+import	{Card, Button}						from	'@yearn/web-lib/components';
 import	{List}								from	'@yearn/web-lib/layouts';
 import	{format}							from	'@yearn/web-lib/utils';
 import	{usePrices, useWeb3}				from	'@yearn/web-lib/contexts';
@@ -12,7 +12,6 @@ import	LogoYearn							from	'components/icons/LogoYearn';
 import	Input								from	'components/Input';
 import	LogoDai								from	'components/icons/LogoDai';
 import	BuybackChart						from	'components/Chart';
-import	Button								from	'components/Button';
 import	{TableHead, TableHeadCell}			from	'components/TableHeadCell';
 import type {TTableHead}					from	'components/TableHeadCell';
 import	useBuyback							from	'contexts/useBuyback';
@@ -180,18 +179,15 @@ function	RowFooter({data}: {data: TData[]}): ReactElement {
 				<div className={''}>{''}</div>
 			</div>
 			<div className={'justify-end min-w-32 row-4'}>
-				<button
-					onClick={prepareCSV}
-					className={'button-small button-filled'}>
+				<Button onClick={prepareCSV} variant={'filled'}>
 					<p className={'font-normal'}>{'Export CSV'}</p>
-				</button>
+				</Button>
 			</div>
 		</div>
 	);
 }
 
 function	Index({data}: {data: TData[]}): ReactElement | null {
-	console.log(data);
 	const	{isActive, provider} = useWeb3();
 	const	{userStatus, status, getStatus, getUserStatus} = useBuyback();
 	const	[sortBy, set_sortBy] = React.useState('time');
@@ -305,7 +301,7 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 	}
 
 	return (
-		<div className={'grid grid-cols-12 gap-4 mx-auto w-full max-w-6xl'}>
+		<div className={'grid grid-cols-12 gap-4'}>
 			<Card className={'col-span-12 md:col-span-7'}>
 				<h2 className={'text-xl font-bold text-typo-primary'}>{'Yearn wants your YFI'}</h2>
 				<div className={'mt-4 mb-6 space-y-4 md:mb-10'}>
@@ -378,6 +374,8 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 				</div>
 				<div className={'grid grid-cols-2 gap-2'}>
 					<Button
+						variant={'filled'}
+						className={'!h-10'}
 						onClick={onApprove}
 						isBusy={txStatusApprove.pending}
 						isDisabled={
@@ -385,11 +383,12 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 							|| amount === '' || Number(amount) === 0 
 							|| Number(amount) > Number(format.units(userBalanceOfYfi || 0, 18))
 							|| Number(amount) <= Number(format.units(userStatus.allowanceOfYfi || 0, 18))
-
 						}>
 						{txStatusApprove.error ? 'Transaction failed' : txStatusApprove.success ? 'Transaction successful' : 'Approve'}
 					</Button>
 					<Button
+						variant={'filled'}
+						className={'!h-10'}
 						onClick={onSell}
 						isBusy={txStatusSell.pending}
 						isDisabled={
@@ -476,9 +475,7 @@ export const getServerSideProps: GetServerSideProps = async (): Promise<any> => 
 		token: 'DAI',
 		hash: (buyBack.id as string).split('-')[1]
 	}));
-	console.log(dynamicData);
 	const	legacyData: TData[] = _legacyData as unknown as TData[];
-
 
 	return {props: {data: [
 		...legacyData,

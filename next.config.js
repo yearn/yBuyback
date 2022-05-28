@@ -11,17 +11,16 @@ module.exports = ({
 		]
 	},
 	env: {
-		WEBSITE_URI: 'https://buyback.major.tax/',
+		WEBSITE_URI: 'https://buyback.yearn.finance/',
 		WEBSITE_NAME: 'YFI Buyback',
 		WEBSITE_TITLE: 'YFI Buyback',
 		WEBSITE_DESCRIPTION: 'You dump, we buy. Simple.',
-		PROJECT_GITHUB_URL: 'https://github.com/Major-Eth/yBuyback',
+		PROJECT_GITHUB_URL: 'https://github.com/yearn/yBuyback',
 		USE_WALLET: true,
 		USE_PRICES: true,
 		USE_NETWORKS: false,
 		USE_PRICE_TRI_CRYPTO: false,
 		ALCHEMY_KEY: process.env.ALCHEMY_KEY,
-
 		CG_IDS: ['yearn-finance'],
 		TOKENS: [
 			['0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e', 18, 1],
