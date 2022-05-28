@@ -92,7 +92,7 @@ function	InputBigNumber({
 	}
 	return (
 		<label
-			aria-invalid={(value !== '' && (!Number(value) || Number(value) > toNormalizedValue(maxValue, decimals)))}
+			aria-invalid={((value !== '' && Number(value) !== 0) && (!Number(value) || Number(value) > toNormalizedValue(maxValue, decimals)))}
 			className={'space-y-1 md:space-y-2'}>
 			<p className={'text-sm md:text-base text-typo-secondary'}>{`You have ${balance}`}</p>
 			<Input

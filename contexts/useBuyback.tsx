@@ -76,7 +76,6 @@ export const BuybackContextApp = ({children}: {children: ReactElement}): ReactEl
 		const	results = await ethcallProvider.tryAll(calls) as [BigNumber, BigNumber, BigNumber, BigNumber];
 		performBatchedUpdates((): void => {
 			const	[price, maxAmount, balanceOfYfi, balanceOfDai] = results;
-			console.log(balanceOfDai.toString());
 			set_status({price, maxAmount, balanceOfYfi, balanceOfDai, loaded: true});
 			set_nonce((n: number): number => n + 1);
 		});

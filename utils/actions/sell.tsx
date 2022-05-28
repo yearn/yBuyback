@@ -7,7 +7,6 @@ export async function	sell(
 ): Promise<boolean> {
 	const	signer = provider.getSigner();
 
-	console.log(amount.toString());
 	try {
 		const	contract = new ethers.Contract(
 			process.env.BUYBACK_ADDR as string,
