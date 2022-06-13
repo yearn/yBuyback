@@ -347,6 +347,7 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 								preserveValue
 								decimals={2}
 								duration={5}
+								separator=','
 								suffix={' DAI'}
 								end={format.toNormalizedValue(status.balanceOfDai) + streamUnlocked} />}
 						</b>
@@ -367,6 +368,7 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 								preserveValue
 								decimals={5}
 								duration={5}
+								separator=','
 								suffix={' YFI'}
 								end={format.toNormalizedValue(status.maxAmount)} />}
 						</b>
