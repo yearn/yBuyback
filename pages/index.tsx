@@ -310,7 +310,7 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 				getStatus()
 			]);
 			const	start = status.streamToStart;
-			const	ratePerSecond = format.units(status.rate, 21);
+			const	ratePerSecond = format.units(status.rate, 20);
 			const	now = block.timestamp;
 			const	timeSinceStart = now - start;
 			const	amountSinceStart = timeSinceStart * format.toSafeValue(ratePerSecond);
