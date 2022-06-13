@@ -1,7 +1,6 @@
-import	React, {MutableRefObject, ReactElement}				from	'react';
-import	{BigNumber, ethers}					from	'ethers';
-import	{format, performBatchedUpdates}		from	'@yearn/web-lib/utils';
-import	{toNormalizedValue}					from	'utils';
+import	React, {MutableRefObject, ReactElement}	from	'react';
+import	{BigNumber, ethers}						from	'ethers';
+import	{format, performBatchedUpdates}			from	'@yearn-finance/web-lib/utils';
 
 type 		TInput = {
 	value: string,
@@ -92,7 +91,7 @@ function	InputBigNumber({
 	}
 	return (
 		<label
-			aria-invalid={((value !== '' && Number(value) !== 0) && (!Number(value) || Number(value) > toNormalizedValue(maxValue, decimals)))}
+			aria-invalid={((value !== '' && Number(value) !== 0) && (!Number(value) || Number(value) > format.toNormalizedValue(maxValue, decimals)))}
 			className={'space-y-1 md:space-y-2'}>
 			<p className={'text-sm md:text-base text-typo-secondary'}>{`You have ${balance}`}</p>
 			<Input
@@ -103,10 +102,10 @@ function	InputBigNumber({
 				onSearch={(s: unknown): void => onChange(s as string)}
 				aria-label={'amountToken1'}
 				placeholder={'0.00000000'}
-				max={toNormalizedValue(maxValue, decimals)}
+				max={format.toNormalizedValue(maxValue, decimals)}
 				onMaxClick={(): void => {
 					if (!maxValue.isZero())
-						onChange(toNormalizedValue(maxValue, decimals).toString());
+						onChange(format.toNormalizedValue(maxValue, decimals).toString());
 				}}
 				withMax={withMax}
 				disabled={props.disabled} />

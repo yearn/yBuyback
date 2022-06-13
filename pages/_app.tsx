@@ -4,8 +4,8 @@ import	Head					from	'next/head';
 import	{DefaultSeo}			from	'next-seo';
 import	Footer					from	'components/StandardFooter';
 import	HeaderTitle				from	'components/HeaderTitle';
-import	{WithYearn}				from	'@yearn/web-lib';
-import	{Header}				from	'@yearn/web-lib/layouts';
+import	{WithYearn}				from	'@yearn-finance/web-lib/contexts';
+import	{Header}				from	'@yearn-finance/web-lib/layouts';
 import	{BuybackContextApp}		from	'contexts/useBuyback';
 import	'../style.css';
 

@@ -1,5 +1,5 @@
 import	React, {ReactElement}		from	'react';
-import	{Button}					from	'@yearn/web-lib/components';
+import	{Button}					from	'@yearn-finance/web-lib/components';
 
 function	HeaderTitle(): ReactElement {
 	return (

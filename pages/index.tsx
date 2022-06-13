@@ -1,13 +1,14 @@
 import	React, {ReactElement}				from	'react';
 import	{GetServerSideProps}				from	'next';
-import	{BigNumber, ethers}							from	'ethers';
+import	{BigNumber, ethers}					from	'ethers';
 import	{request}							from	'graphql-request';
 import	{Parser}							from	'json2csv';
-import	{LinkOut}							from	'@yearn/web-lib/icons';
-import	{Card, Button}						from	'@yearn/web-lib/components';
-import	{List}								from	'@yearn/web-lib/layouts';
-import	{format}							from	'@yearn/web-lib/utils';
-import	{usePrices, useWeb3}				from	'@yearn/web-lib/contexts';
+import	CountUp								from	'react-countup';
+import	{LinkOut}							from	'@yearn-finance/web-lib/icons';
+import	{Card, Button}						from	'@yearn-finance/web-lib/components';
+import	{List}								from	'@yearn-finance/web-lib/layouts';
+import	{format, providers}							from	'@yearn-finance/web-lib/utils';
+import	{usePrices, useWeb3}				from	'@yearn-finance/web-lib/contexts';
 import	LogoYearn							from	'components/icons/LogoYearn';
 import	Input								from	'components/Input';
 import	LogoDai								from	'components/icons/LogoDai';
@@ -19,7 +20,7 @@ import	{getBuybacks}						from	'pages/api/buyback-as-json';
 import	{Transaction, defaultTxStatus}		from	'utils/tx';
 import	{approveERC20}						from	'utils/actions/approveToken';
 import	{sell}								from	'utils/actions/sell';
-import	{sortByKey, sum, toSafeDate, toNormalizedAmount, toNormalizedValue, toSafeAmount}	from	'utils';
+import	{sortByKey, sum, toSafeDate}		from	'utils';
 
 type		TRowElement = {
 	data: any,
@@ -40,7 +41,7 @@ function	RowElement({data, index, tokenPrice}: TRowElement): ReactElement {
 		<div
 			className={`grid grid-cols-22 py-4 px-6 w-[1200px] md:w-full ${index % 2 ? 'bg-surface' : 'bg-background'}`}>
 			<div className={'items-start min-w-32 row-3'}>
-				<div className={'tabular-nums text-typo-secondary'}>{format.date(toSafeDate(data.timestamp))}</div>
+				<div className={'tabular-nums text-typo-secondary'}>{format.date(toSafeDate(data.timestamp) as any)}</div>
 			</div>
 			<div className={'min-w-36 cell-end row-3'}>
 				<div className={'cell-right'}>{format.amount(data.yfiAmount, 8, 8)}</div>
@@ -196,6 +197,7 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 	const	[totalInfo, set_totalInfo] = React.useState({yfiAmount: 0, usdValue: 0, loaded: false});
 	const	[userBalanceOfDai, set_userBalanceOfDai] = React.useState(ethers.constants.Zero);
 	const	[userBalanceOfYfi, set_userBalanceOfYfi] = React.useState(ethers.constants.Zero);
+	const	[streamUnlocked, set_streamUnlocked] = React.useState(0);
 	const	[txStatusApprove, set_txStatusApprove] = React.useState(defaultTxStatus);
 	const	[txStatusSell, set_txStatusSell] = React.useState(defaultTxStatus);
 	const	[amount, set_amount] = React.useState('');
@@ -272,7 +274,7 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 			return;
 		await new Transaction(provider, sell, set_txStatusSell)
 			.populate(
-				toSafeAmount(amount, userBalanceOfYfi)
+				format.toSafeAmount(amount, userBalanceOfYfi)
 			).onSuccess(async (): Promise<void> => {
 				await Promise.all([getStatus(), getUserStatus()]);
 				set_amount('');
@@ -286,7 +288,7 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 			.populate(
 				process.env.YFI_ADDR as string,
 				process.env.BUYBACK_ADDR as string,
-				toSafeAmount(amount, userBalanceOfYfi)
+				format.toSafeAmount(amount, userBalanceOfYfi)
 			).onSuccess(async (): Promise<void> => {
 				await getUserStatus();
 			}).perform();
@@ -295,10 +297,30 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 	function	maxValue(): BigNumber {
 		//Determine if max amount in YFI is user's balance or contracts' Remaining to buy
 		let	expectedMaxAmount = userBalanceOfYfi;
-		if (userBalanceOfYfi.gte(status.maxAmount))
+		if (status?.maxAmount && userBalanceOfYfi.gte(status.maxAmount))
 			expectedMaxAmount = status.maxAmount;
 		return (expectedMaxAmount);
 	}
+
+	React.useEffect((): (() => void) => {
+		const	interval = setInterval(async (): Promise<void> => {
+			const	currentProvider = provider || providers.getProvider(1);
+			const	[block] = await Promise.all([
+				currentProvider.getBlock(),
+				getStatus()
+			]);
+			const	start = status.streamToStart;
+			const	ratePerSecond = format.units(status.rate, 21);
+			const	now = block.timestamp;
+			const	timeSinceStart = now - start;
+			const	amountSinceStart = timeSinceStart * format.toSafeValue(ratePerSecond);
+
+			set_streamUnlocked(amountSinceStart);
+		}, 1000);
+		return (): void => {
+			clearInterval(interval);
+		};
+	}, [status, provider]);
 
 	return (
 		<div className={'grid grid-cols-12 gap-4'}>
@@ -307,25 +329,47 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 				<div className={'mt-4 mb-6 space-y-4 md:mb-10'}>
 					<p className={'text-typo-secondary'}>{'YFI is an important part of how we build Yearn. It’s one of the ways we pay for the best DeFi talent, ensuring that the incentives of those building the protocol align with the protocol itself. After all, skin in the game is the best way to play.'}</p>
 					<p className={'text-typo-secondary'}>
-						{`We’ve bought ${!totalInfo.loaded ? '-' : format.amount(totalInfo.yfiAmount, 2, 2)} YFI to date, and we still want more. The buyback `}
-						<a href={'https://etherscan.io/address/0xdf5e4e54d212f7a01cf94b3986f40933fcff589f'} target={'_blank'} rel={'noreferrer'} className={'underline'}>
+						{`We’ve bought ${!totalInfo.loaded ? '-' : format.amount(totalInfo.yfiAmount, 2, 5)} YFI to date, and we still want more. The buyback `}
+						<a href={`https://etherscan.io/address/${process.env.BUYBACK_ADDR as string}`} target={'_blank'} rel={'noreferrer'} className={'underline'}>
 							{'contract'}
 						</a>
-						{' is topped up from time to time with more DAI, so it’s worth revisiting this page in the future.'}</p>
-					<p className={'text-typo-secondary'}>{'So, do us a favor and sell us your YFI.'}</p>
+						{' is topped up from time to time with more DAI, so it’s worth revisiting this page in the future.'}
+					</p>
+					<p className={'text-typo-secondary'}>
+						{`We stream ${!totalInfo.loaded ? '-' : format.amount(status.streamPerMonth, 2, 2)} DAI per month to the piggybank to be used for buybacks.`}
+					</p>
 				</div>
 				<div className={'grid grid-cols-2 gap-4 md:grid-cols-3'}>
 					<div>
 						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Our piggybank has'}</p>
-						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '-' : toNormalizedAmount(status.balanceOfDai)} DAI`}</b>
+						<b className={'text-lg tabular-nums md:text-xl'}>
+							{!status.loaded ? '-' : <CountUp
+								preserveValue
+								decimals={2}
+								duration={5}
+								suffix={' DAI'}
+								end={format.toNormalizedValue(status.balanceOfDai) + streamUnlocked} />}
+						</b>
+						<p className={'pt-0.5 text-xs text-[#7F8DA9]'}>
+							{status.loaded && status.rate && !status.rate.isZero() ? `+ ${format.amount(status.streamPerMonth, 2, 2)} DAI/month` : ''}
+						</p>
 					</div>
 					<div>
 						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'We\'ll buy each YFI for'}</p>
-						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '-' : toNormalizedAmount(status.price)} DAI`}</b>
+						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '- DAI' : (
+							format.amount(format.toNormalizedValue(status.price, 18), 2, 2)
+						)} DAI`}</b>
 					</div>
 					<div>
 						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'You can sell us max'}</p>
-						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '-' : toNormalizedAmount(status.maxAmount)} YFI`}</b>
+						<b className={'text-lg md:text-xl'}>
+							{!status.loaded ? '- YFI' : <CountUp 
+								preserveValue
+								decimals={5}
+								duration={5}
+								suffix={' YFI'}
+								end={format.toNormalizedValue(status.maxAmount)} />}
+						</b>
 					</div>
 
 				</div>
@@ -342,8 +386,8 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 						</div>
 						<div className={'flex flex-col py-2 px-4 w-full h-24 rounded-lg md:py-4 md:px-6 md:h-32 bg-background'}>
 							<Input.BigNumber
-								balance={toNormalizedAmount(userBalanceOfYfi)}
-								price={toNormalizedValue(status.price)}
+								balance={format.toNormalizedAmount(userBalanceOfYfi)}
+								price={format.toNormalizedValue(status.price)}
 								value={amount}
 								onSetValue={(s: string): void => set_amount(s)}
 								maxValue={maxValue()}
@@ -363,9 +407,9 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 						<div className={'flex flex-col py-2 px-4 w-full h-24 rounded-lg border md:py-4 md:px-6 md:h-32 bg-surface border-icons-primary'}>
 							<Input.BigNumber
 								disabled
-								balance={toNormalizedAmount(userBalanceOfDai)}
+								balance={format.toNormalizedAmount(userBalanceOfDai)}
 								price={1}
-								value={(Number(amount || 0) * toNormalizedValue(status.price)).toFixed(2)}
+								value={(Number(amount || 0) * format.toNormalizedValue(status.price)).toFixed(2)}
 								onSetValue={(): void => undefined}
 								decimals={18}
 								withMax={false} />
@@ -408,7 +452,7 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 							<div className={'flex flex-col'}>
 								<p className={'mb-2 text-typo-secondary'}>{'Buyback over time'}</p>
 								<p className={'text-xl font-bold text-dark-blue-1'}>
-									{`${format.amount(totalInfo.yfiAmount, 4)} YFI`}
+									{`${format.amount(totalInfo.yfiAmount, 5)} YFI`}
 								</p>
 							</div>
 							<div className={'flex flex-col'}>
@@ -469,9 +513,9 @@ export const getServerSideProps: GetServerSideProps = async (): Promise<any> => 
 	const	dynamicData: TData[] = buyBacks.map((buyBack: any): TData => ({
 		id: buyBack.id,
 		timestamp: formatTimestamp(buyBack.timestamp),
-		yfiAmount: toNormalizedValue(buyBack.yfi),
-		usdValue: toNormalizedValue(buyBack.dai),
-		tokenAmount: toNormalizedValue(buyBack.dai),
+		yfiAmount: format.toNormalizedValue(buyBack.yfi),
+		usdValue: format.toNormalizedValue(buyBack.dai),
+		tokenAmount: format.toNormalizedValue(buyBack.dai),
 		token: 'DAI',
 		hash: (buyBack.id as string).split('-')[1]
 	}));
