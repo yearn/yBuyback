@@ -7,7 +7,7 @@ import	CountUp								from	'react-countup';
 import	{LinkOut}							from	'@yearn-finance/web-lib/icons';
 import	{Card, Button}						from	'@yearn-finance/web-lib/components';
 import	{List}								from	'@yearn-finance/web-lib/layouts';
-import	{format, providers}							from	'@yearn-finance/web-lib/utils';
+import	{format}							from	'@yearn-finance/web-lib/utils';
 import	{usePrices, useWeb3}				from	'@yearn-finance/web-lib/contexts';
 import	LogoYearn							from	'components/icons/LogoYearn';
 import	Input								from	'components/Input';
@@ -197,7 +197,6 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 	const	[totalInfo, set_totalInfo] = React.useState({yfiAmount: 0, usdValue: 0, loaded: false});
 	const	[userBalanceOfDai, set_userBalanceOfDai] = React.useState(ethers.constants.Zero);
 	const	[userBalanceOfYfi, set_userBalanceOfYfi] = React.useState(ethers.constants.Zero);
-	const	[streamUnlocked, set_streamUnlocked] = React.useState(0);
 	const	[txStatusApprove, set_txStatusApprove] = React.useState(defaultTxStatus);
 	const	[txStatusSell, set_txStatusSell] = React.useState(defaultTxStatus);
 	const	[amount, set_amount] = React.useState('');
@@ -302,26 +301,6 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 		return (expectedMaxAmount);
 	}
 
-	React.useEffect((): (() => void) => {
-		const	interval = setInterval(async (): Promise<void> => {
-			const	currentProvider = provider || providers.getProvider(1);
-			const	[block] = await Promise.all([
-				currentProvider.getBlock(),
-				getStatus()
-			]);
-			const	start = status.streamToStart;
-			const	ratePerSecond = format.units(status.rate, 21);
-			const	now = block.timestamp;
-			const	timeSinceStart = now - start;
-			const	amountSinceStart = timeSinceStart * format.toSafeValue(ratePerSecond);
-
-			set_streamUnlocked(amountSinceStart);
-		}, 1000);
-		return (): void => {
-			clearInterval(interval);
-		};
-	}, [status, provider]);
-
 	return (
 		<div className={'grid grid-cols-12 gap-4'}>
 			<Card className={'col-span-12 md:col-span-7'}>
@@ -346,11 +325,12 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 							{!status.loaded ? '-' : <CountUp
 								preserveValue
 								decimals={2}
-								duration={5}
+								duration={2}
+								separator={','}
 								suffix={' DAI'}
-								end={format.toNormalizedValue(status.balanceOfDai) + streamUnlocked} />}
+								end={format.toNormalizedValue(status.balanceOfDai)} />}
 						</b>
-						<p className={'pt-0.5 text-xs text-[#7F8DA9]'}>
+						<p className={'pt-0.5 text-[#7F8DA9] text-s'}>
 							{status.loaded && status.rate && !status.rate.isZero() ? `+ ${format.amount(status.streamPerMonth, 2, 2)} DAI/month` : ''}
 						</p>
 					</div>
@@ -366,7 +346,8 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 							{!status.loaded ? '- YFI' : <CountUp 
 								preserveValue
 								decimals={5}
-								duration={5}
+								duration={2}
+								separator={','}
 								suffix={' YFI'}
 								end={format.toNormalizedValue(status.maxAmount)} />}
 						</b>
