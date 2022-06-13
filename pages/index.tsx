@@ -305,12 +305,16 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 	React.useEffect((): (() => void) => {
 		const	interval = setInterval(async (): Promise<void> => {
 			const	currentProvider = provider || providers.getProvider(1);
-			const	block = await currentProvider.getBlock();
+			const	[block] = await Promise.all([
+				currentProvider.getBlock(),
+				getStatus()
+			]);
 			const	start = status.streamToStart;
 			const	ratePerSecond = format.units(status.rate, 21);
 			const	now = block.timestamp;
 			const	timeSinceStart = now - start;
 			const	amountSinceStart = timeSinceStart * format.toSafeValue(ratePerSecond);
+
 			set_streamUnlocked(amountSinceStart);
 		}, 1000);
 		return (): void => {
@@ -325,16 +329,15 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 				<div className={'mt-4 mb-6 space-y-4 md:mb-10'}>
 					<p className={'text-typo-secondary'}>{'YFI is an important part of how we build Yearn. It’s one of the ways we pay for the best DeFi talent, ensuring that the incentives of those building the protocol align with the protocol itself. After all, skin in the game is the best way to play.'}</p>
 					<p className={'text-typo-secondary'}>
-						{`We’ve bought ${!totalInfo.loaded ? '-' : format.amount(totalInfo.yfiAmount, 2, 2)} YFI to date, and we still want more. The buyback `}
+						{`We’ve bought ${!totalInfo.loaded ? '-' : format.amount(totalInfo.yfiAmount, 2, 5)} YFI to date, and we still want more. The buyback `}
 						<a href={`https://etherscan.io/address/${process.env.BUYBACK_ADDR as string}`} target={'_blank'} rel={'noreferrer'} className={'underline'}>
 							{'contract'}
 						</a>
 						{' is topped up from time to time with more DAI, so it’s worth revisiting this page in the future.'}
 					</p>
 					<p className={'text-typo-secondary'}>
-						{`We stream ${!totalInfo.loaded ? '-' : format.amount(status.streamPerMonth, 2, 4)} DAI per month to the piggybank to be used for buybacks.`}
+						{`We stream ${!totalInfo.loaded ? '-' : format.amount(status.streamPerMonth, 2, 2)} DAI per month to the piggybank to be used for buybacks.`}
 					</p>
-					<p className={'text-typo-secondary'}>{'So, do us a favor and sell us your YFI.'}</p>
 				</div>
 				<div className={'grid grid-cols-2 gap-4 md:grid-cols-3'}>
 					<div>
@@ -342,23 +345,31 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 						<b className={'text-lg tabular-nums md:text-xl'}>
 							{!status.loaded ? '-' : <CountUp
 								preserveValue
-								decimals={4}
-								duration={1}
+								decimals={2}
+								duration={5}
 								suffix={' DAI'}
 								end={format.toNormalizedValue(status.balanceOfDai) + streamUnlocked} />}
 						</b>
 						<p className={'pt-0.5 text-xs text-[#7F8DA9]'}>
-							{status.loaded && status.rate && !status.rate.isZero() ? `+ ${format.amount(status.streamPerMonth, 2, 4)} DAI/month` : ''}
+							{status.loaded && status.rate && !status.rate.isZero() ? `+ ${format.amount(status.streamPerMonth, 2, 2)} DAI/month` : ''}
 						</p>
-						{/* rate * 30 * 86400 / 1e20 */}
 					</div>
 					<div>
 						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'We\'ll buy each YFI for'}</p>
-						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '-' : format.toNormalizedAmount(status.price)} DAI`}</b>
+						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '- DAI' : (
+							format.amount(format.toNormalizedValue(status.price, 18), 2, 2)
+						)} DAI`}</b>
 					</div>
 					<div>
 						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'You can sell us max'}</p>
-						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '-' : format.toNormalizedAmount(status.maxAmount)} YFI`}</b>
+						<b className={'text-lg md:text-xl'}>
+							{!status.loaded ? '- YFI' : <CountUp 
+								preserveValue
+								decimals={5}
+								duration={5}
+								suffix={' YFI'}
+								end={format.toNormalizedValue(status.maxAmount)} />}
+						</b>
 					</div>
 
 				</div>
@@ -441,7 +452,7 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 							<div className={'flex flex-col'}>
 								<p className={'mb-2 text-typo-secondary'}>{'Buyback over time'}</p>
 								<p className={'text-xl font-bold text-dark-blue-1'}>
-									{`${format.amount(totalInfo.yfiAmount, 4)} YFI`}
+									{`${format.amount(totalInfo.yfiAmount, 5)} YFI`}
 								</p>
 							</div>
 							<div className={'flex flex-col'}>
