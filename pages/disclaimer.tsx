@@ -1,6 +1,6 @@
 import	React, {ReactElement}	from	'react';
 import	Link					from	'next/link';
-import	{Cross}					from	'@yearn/web-lib/icons';
+import	{Cross}					from	'@yearn-finance/web-lib/icons';
 
 function	DisclaimerPage(): ReactElement {
 	return (
