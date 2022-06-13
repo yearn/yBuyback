@@ -301,6 +301,15 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 		return (expectedMaxAmount);
 	}
 
+	React.useEffect((): (() => void) => {
+		const	interval = setInterval(async (): Promise<void> => {
+			await getStatus();
+		}, 1000);
+		return (): void => {
+			clearInterval(interval);
+		};
+	}, [status, provider]);
+
 	return (
 		<div className={'grid grid-cols-12 gap-4'}>
 			<Card className={'col-span-12 md:col-span-7'}>
