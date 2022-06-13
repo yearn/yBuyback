@@ -73,11 +73,11 @@ export const BuybackContextApp = ({children}: {children: ReactElement}): ReactEl
 			buyback.price(),
 			buyback.max_amount(),
 			buyback.rate(),
-			buyback.total_dai(),
+			buyback.total_dai()
 		];
 		const	results = await ethcallProvider.tryAll(calls) as [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber];
 		const	[price, maxAmount, rate, balanceOfDai] = results;
-		const	lastBlock = currentProvider.getBlock()
+		const	lastBlock = currentProvider.getBlock();
 
 		const	streamPerMonth = format.toSafeValue(format.units(rate, 20));
 

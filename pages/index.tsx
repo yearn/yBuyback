@@ -7,7 +7,7 @@ import	CountUp								from	'react-countup';
 import	{LinkOut}							from	'@yearn-finance/web-lib/icons';
 import	{Card, Button}						from	'@yearn-finance/web-lib/components';
 import	{List}								from	'@yearn-finance/web-lib/layouts';
-import	{format, providers}							from	'@yearn-finance/web-lib/utils';
+import	{format}							from	'@yearn-finance/web-lib/utils';
 import	{usePrices, useWeb3}				from	'@yearn-finance/web-lib/contexts';
 import	LogoYearn							from	'components/icons/LogoYearn';
 import	Input								from	'components/Input';
@@ -326,11 +326,11 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 								preserveValue
 								decimals={2}
 								duration={2}
-								separator=','
+								separator={','}
 								suffix={' DAI'}
 								end={format.toNormalizedValue(status.balanceOfDai)} />}
 						</b>
-						<p className={'pt-0.5 text-s text-[#7F8DA9]'}>
+						<p className={'pt-0.5 text-[#7F8DA9] text-s'}>
 							{status.loaded && status.rate && !status.rate.isZero() ? `+ ${format.amount(status.streamPerMonth, 2, 2)} DAI/month` : ''}
 						</p>
 					</div>
@@ -347,7 +347,7 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 								preserveValue
 								decimals={5}
 								duration={2}
-								separator=','
+								separator={','}
 								suffix={' YFI'}
 								end={format.toNormalizedValue(status.maxAmount)} />}
 						</b>
