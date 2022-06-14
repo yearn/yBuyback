@@ -5,12 +5,11 @@ import	{request}							from	'graphql-request';
 import	{Parser}							from	'json2csv';
 import	CountUp								from	'react-countup';
 import	{LinkOut}							from	'@yearn-finance/web-lib/icons';
-import	{Card, Button}						from	'@yearn-finance/web-lib/components';
+import	{Card, Button, Input}				from	'@yearn-finance/web-lib/components';
 import	{List}								from	'@yearn-finance/web-lib/layouts';
 import	{format}							from	'@yearn-finance/web-lib/utils';
 import	{usePrices, useWeb3}				from	'@yearn-finance/web-lib/contexts';
 import	LogoYearn							from	'components/icons/LogoYearn';
-import	Input								from	'components/Input';
 import	LogoDai								from	'components/icons/LogoDai';
 import	BuybackChart						from	'components/Chart';
 import	{TableHead, TableHeadCell}			from	'components/TableHeadCell';
@@ -39,9 +38,9 @@ type		TGraphData = {
 function	RowElement({data, index, tokenPrice}: TRowElement): ReactElement {
 	return (
 		<div
-			className={`grid grid-cols-22 py-4 px-6 w-[1200px] md:w-full ${index % 2 ? 'bg-surface' : 'bg-background'}`}>
+			className={`grid grid-cols-22 py-4 px-6 w-[1200px] md:w-full ${index % 2 ? 'bg-neutral-0' : 'bg-neutral-200'}`}>
 			<div className={'items-start min-w-32 row-3'}>
-				<div className={'tabular-nums text-typo-secondary'}>{format.date(toSafeDate(data.timestamp) as any)}</div>
+				<div className={'tabular-nums text-neutral-500'}>{format.date(toSafeDate(data.timestamp) as any)}</div>
 			</div>
 			<div className={'min-w-36 cell-end row-3'}>
 				<div className={'cell-right'}>{format.amount(data.yfiAmount, 8, 8)}</div>
@@ -49,7 +48,7 @@ function	RowElement({data, index, tokenPrice}: TRowElement): ReactElement {
 			<div className={'min-w-36 cell-end row-4'}>
 				<div className={'cell-right'}>
 					<p>{`$ ${format.amount(data.usdValue, 2)}`}</p>
-					<p className={'text-sm text-typo-secondary'}>{`${format.amount(data.tokenAmount, 2)} ${data.token}`}</p>
+					<p className={'text-sm text-neutral-500'}>{`${format.amount(data.tokenAmount, 2)} ${data.token}`}</p>
 				</div>
 			</div>
 			<div className={'min-w-36 cell-end row-4'}>
@@ -64,7 +63,7 @@ function	RowElement({data, index, tokenPrice}: TRowElement): ReactElement {
 				<div className={'flex flex-row justify-end items-center w-full'}>
 					<div>
 						<a href={`https://etherscan.io/tx/${data.hash}`} target={'_blank'} rel={'noreferrer'}>
-							<div className={'text-typo-secondary link'}>
+							<div className={'text-neutral-500 link'}>
 								<LinkOut className={'w-4 h-4'} />
 							</div>
 						</a>
@@ -157,22 +156,22 @@ function	RowFooter({data}: {data: TData[]}): ReactElement {
 	}
 
 	return (
-		<div className={'grid sticky bottom-0 z-10 grid-cols-22 items-center py-3 px-6 w-[1200px] md:w-full dark:bg-surface bg-typo-off'}>
+		<div className={'grid sticky bottom-0 z-10 grid-cols-22 items-center py-3 px-6 w-[1200px] md:w-full bg-neutral-0'}>
 			<div className={'col-span-3 min-w-36'}>
-				<div className={'font-bold tabular-nums text-dark-blue-1'}>{'Total:'}</div>
+				<div className={'font-bold tabular-nums text-neutral-700'}>{'Total:'}</div>
 			</div>
 			<div className={'justify-end items-start min-w-36 row-3'}>
-				<div className={'font-bold tabular-nums text-right text-dark-blue-1'}>
+				<div className={'font-bold tabular-nums text-right text-neutral-700'}>
 					{`${format.amount(sum(data.map((e: TData): number => e.yfiAmount)), 12, 8)}`}
 				</div>
 			</div>
 			<div className={'justify-end items-start min-w-36 row-4'}>
-				<div className={'font-bold tabular-nums text-right text-dark-blue-1'}>
+				<div className={'font-bold tabular-nums text-right text-neutral-700'}>
 					{`$ ${format.amount(sum(data.map((e: TData): number => e.usdValue)), 2)}`}
 				</div>
 			</div>
 			<div className={'justify-end items-start min-w-36 row-4'}>
-				<div className={'font-bold tabular-nums text-right text-dark-blue-1'}>
+				<div className={'font-bold tabular-nums text-right text-neutral-700'}>
 					{`Avg. price: $ ${format.amount(computeAvegagePrice())}`}
 				</div>
 			</div>
@@ -200,6 +199,7 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 	const	[txStatusApprove, set_txStatusApprove] = React.useState(defaultTxStatus);
 	const	[txStatusSell, set_txStatusSell] = React.useState(defaultTxStatus);
 	const	[amount, set_amount] = React.useState('');
+	const	[streamDelta, set_streamDelta] = React.useState(0);
 	const	isGraphReady = !(!sortedData || sortedData.length === 0);
 
 	React.useEffect((): void => {
@@ -303,61 +303,71 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 
 	React.useEffect((): (() => void) => {
 		const	interval = setInterval(async (): Promise<void> => {
-			await getStatus();
+			const	_status = await getStatus();
+			const	rate = format.toSafeValue(format.units(_status.rate, 20));
+			const	currentTime = _status.currentTime;
+			const	now = Math.floor(new Date().valueOf() / 1000);
+			set_streamDelta((now - currentTime) * rate);
 		}, 1000);
 		return (): void => {
 			clearInterval(interval);
 		};
 	}, [status, provider]);
 
+	const formatDAI = React.useCallback((n: number): string => `${format.amount(n, 2, 2)} DAI`, []);
+	const formatYFI = React.useCallback((n: number): string => `${format.amount(n, 5, 5)} YFI`, []);
+
 	return (
 		<div className={'grid grid-cols-12 gap-4'}>
 			<Card className={'col-span-12 md:col-span-7'}>
-				<h2 className={'text-xl font-bold text-typo-primary'}>{'Yearn wants your YFI'}</h2>
+				<h2 className={'text-xl font-bold text-neutral-700'}>{'Yearn wants your YFI'}</h2>
 				<div className={'mt-4 mb-6 space-y-4 md:mb-10'}>
-					<p className={'text-typo-secondary'}>{'YFI is an important part of how we build Yearn. It’s one of the ways we pay for the best DeFi talent, ensuring that the incentives of those building the protocol align with the protocol itself. After all, skin in the game is the best way to play.'}</p>
-					<p className={'text-typo-secondary'}>
+					<p className={'text-neutral-500'}>{'YFI is an important part of how we build Yearn. It’s one of the ways we pay for the best DeFi talent, ensuring that the incentives of those building the protocol align with the protocol itself. After all, skin in the game is the best way to play.'}</p>
+					<p className={'text-neutral-500'}>
 						{`We’ve bought ${!totalInfo.loaded ? '-' : format.amount(totalInfo.yfiAmount, 2, 5)} YFI to date, and we still want more. The buyback `}
 						<a href={`https://etherscan.io/address/${process.env.BUYBACK_ADDR as string}`} target={'_blank'} rel={'noreferrer'} className={'underline'}>
 							{'contract'}
 						</a>
 						{' is topped up from time to time with more DAI, so it’s worth revisiting this page in the future.'}
 					</p>
-					<p className={'text-typo-secondary'}>
+					<p className={'text-neutral-500'}>
 						{`We stream ${!totalInfo.loaded ? '-' : format.amount(status.streamPerMonth, 2, 2)} DAI per month to the piggybank to be used for buybacks.`}
 					</p>
 				</div>
 				<div className={'grid grid-cols-2 gap-4 md:grid-cols-3'}>
 					<div>
-						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Our piggybank has'}</p>
-						<b className={'text-lg tabular-nums md:text-xl'}>
-							{!status.loaded ? '-' : <CountUp
+						<p className={'pb-1 md:pb-2 text-neutral-500'}>{'Our piggybank has'}</p>
+						<b className={'font-mono text-lg tabular-nums md:text-xl'}>
+							{!status.loaded ? '- DAI' : <CountUp
 								preserveValue
 								decimals={2}
 								duration={2}
-								separator={','}
-								suffix={' DAI'}
-								end={format.toNormalizedValue(status.balanceOfDai)} />}
+								formattingFn={formatDAI}
+								end={format.toNormalizedValue(status.balanceOfDai) + streamDelta} />}
 						</b>
-						<p className={'pt-0.5 text-[#7F8DA9] text-s'}>
+						<p className={'pt-0.5 text-sm text-[#7F8DA9]'}>
 							{status.loaded && status.rate && !status.rate.isZero() ? `+ ${format.amount(status.streamPerMonth, 2, 2)} DAI/month` : ''}
 						</p>
 					</div>
 					<div>
-						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'We\'ll buy each YFI for'}</p>
-						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '- DAI' : (
-							format.amount(format.toNormalizedValue(status.price, 18), 2, 2)
-						)} DAI`}</b>
+						<p className={'pb-1 md:pb-2 text-neutral-500'}>{'We\'ll buy each YFI for'}</p>
+						<b className={'font-mono text-lg tabular-nums md:text-xl'}>
+							{!status.loaded ? '- DAI' : <CountUp
+								preserveValue
+								decimals={2}
+								duration={2}
+								formattingFn={formatDAI}
+								end={format.toNormalizedValue(status.price)} />}
+						</b>
 					</div>
 					<div>
-						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'You can sell us max'}</p>
-						<b className={'text-lg md:text-xl'}>
+						<p className={'pb-1 md:pb-2 text-neutral-500'}>{'You can sell us max'}</p>
+						<b className={'font-mono text-lg md:text-xl'}>
 							{!status.loaded ? '- YFI' : <CountUp 
 								preserveValue
 								decimals={5}
 								duration={2}
-								separator={','}
-								suffix={' YFI'}
+								formattingFn={formatYFI}
 								end={format.toNormalizedValue(status.maxAmount)} />}
 						</b>
 					</div>
@@ -366,15 +376,15 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 			</Card>
 			<Card className={'col-span-12 md:col-span-5'}>
 				<div>
-					<p className={'text-typo-secondary'}>{'You sell'}</p>
+					<p className={'text-neutral-500'}>{'You sell'}</p>
 					<div className={'flex flex-row mt-2 space-x-2'}>
-						<div className={'aspect-square flex flex-col justify-center items-center w-24 rounded-lg md:w-32 md:min-w-32 min-w-24 bg-background'}>
+						<div className={'aspect-square flex flex-col justify-center items-center w-24 md:w-32 md:min-w-32 rounded-default min-w-24 bg-neutral-200'}>
 							<LogoYearn className={'w-8 h-8 md:w-12 md:h-12'}/>
 							<div className={'mt-2 md:mt-4'}>
 								<b>{'YFI'}</b>
 							</div>
 						</div>
-						<div className={'flex flex-col py-2 px-4 w-full h-24 rounded-lg md:py-4 md:px-6 md:h-32 bg-background'}>
+						<div className={'flex flex-col py-2 px-4 w-full h-24 md:py-4 md:px-6 md:h-32 rounded-default bg-neutral-200'}>
 							<Input.BigNumber
 								balance={format.toNormalizedAmount(userBalanceOfYfi)}
 								price={format.toNormalizedValue(status.price)}
@@ -386,15 +396,15 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 					</div>
 				</div>
 				<div className={'my-4'}>
-					<p className={'text-typo-secondary'}>{'You receive'}</p>
+					<p className={'text-neutral-500'}>{'You receive'}</p>
 					<div className={'flex flex-row mt-2 space-x-2'}>
-						<div className={'aspect-square flex flex-col justify-center items-center w-24 rounded-lg border md:w-32 md:min-w-32 min-w-24 bg-surface border-icons-primary'}>
+						<div className={'aspect-square flex flex-col justify-center items-center w-24 border md:w-32 md:min-w-32 rounded-default min-w-24 bg-neutral-0 border-neutral-400'}>
 							<LogoDai className={'w-8 h-8 md:w-12 md:h-12'}/>
 							<div className={'mt-2 md:mt-4'}>
 								<b>{'DAI'}</b>
 							</div>
 						</div>
-						<div className={'flex flex-col py-2 px-4 w-full h-24 rounded-lg border md:py-4 md:px-6 md:h-32 bg-surface border-icons-primary'}>
+						<div className={'flex flex-col py-2 px-4 w-full h-24 border md:py-4 md:px-6 md:h-32 rounded-default bg-neutral-0 border-neutral-400'}>
 							<Input.BigNumber
 								disabled
 								balance={format.toNormalizedAmount(userBalanceOfDai)}
@@ -440,14 +450,14 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 					<Card className={'hidden w-full h-136 md:block'}>
 						<div className={'flex flex-row mb-6 space-x-11'}>
 							<div className={'flex flex-col'}>
-								<p className={'mb-2 text-typo-secondary'}>{'Buyback over time'}</p>
-								<p className={'text-xl font-bold text-dark-blue-1'}>
+								<p className={'mb-2 text-neutral-500'}>{'Buyback over time'}</p>
+								<p className={'text-xl font-bold text-neutral-700'}>
 									{`${format.amount(totalInfo.yfiAmount, 5)} YFI`}
 								</p>
 							</div>
 							<div className={'flex flex-col'}>
-								<p className={'mb-2 text-typo-secondary'}>{'In USD'}</p>
-								<p className={'text-xl font-bold text-dark-blue-1'}>
+								<p className={'mb-2 text-neutral-500'}>{'In USD'}</p>
+								<p className={'text-xl font-bold text-neutral-700'}>
 									{`$ ${format.amount(totalInfo.usdValue, 2)}`}
 								</p>
 							</div>

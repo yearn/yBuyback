@@ -25,7 +25,7 @@ type	TBuyback = {
 	status: TStatus
 	userStatus: TUserStatus
 	getUserStatus: () => Promise<void>
-	getStatus: () => Promise<void>
+	getStatus: () => Promise<TStatus>
 }
 const	defaultProps = {
 	status: {
@@ -43,7 +43,7 @@ const	defaultProps = {
 		allowanceOfYfi: ethers.constants.Zero,
 		loaded: false
 	},
-	getStatus: async (): Promise<void> => undefined,
+	getStatus: async (): Promise<TStatus> => defaultProps.status,
 	getUserStatus: async (): Promise<void> => undefined
 };
 const	BuybackContext = createContext<TBuyback>(defaultProps);
@@ -65,7 +65,7 @@ export const BuybackContextApp = ({children}: {children: ReactElement}): ReactEl
 	/* 🔵 - Yearn Finance ******************************************************
 	**	Fetch the element independant of user's wallet
 	***************************************************************************/
-	const getStatus = React.useCallback(async (): Promise<void> => {
+	const getStatus = React.useCallback(async (): Promise<TStatus> => {
 		const	currentProvider = provider || providers.getProvider(1);
 		const	ethcallProvider = await providers.newEthCallProvider(currentProvider);
 		const	buyback = new Contract(process.env.BUYBACK_ADDR as string, BUYBACK_ABI);
@@ -75,24 +75,26 @@ export const BuybackContextApp = ({children}: {children: ReactElement}): ReactEl
 			buyback.rate(),
 			buyback.total_dai()
 		];
-		const	results = await ethcallProvider.tryAll(calls) as [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber];
+		const	[results, lastBlock] = await Promise.all([
+			ethcallProvider.tryAll(calls),
+			currentProvider.getBlock()
+		]) as [[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber], {timestamp: number}];
+
 		const	[price, maxAmount, rate, balanceOfDai] = results;
-		const	lastBlock = currentProvider.getBlock();
-
-		const	streamPerMonth = format.toSafeValue(format.units(rate, 20));
-
+		const	_status = {
+			price,
+			maxAmount,
+			rate,
+			streamPerMonth: format.toSafeValue(format.units(rate, 20)) * 30 * 86400,
+			balanceOfDai,
+			currentTime: lastBlock.timestamp,
+			loaded: true
+		};
 		performBatchedUpdates((): void => {
-			set_status({
-				price,
-				maxAmount,
-				rate,
-				streamPerMonth: streamPerMonth * 30 * 86400,
-				balanceOfDai,
-				currentTime: lastBlock.timestamp,
-				loaded: true
-			});
+			set_status(_status);
 			set_nonce((n: number): number => n + 1);
 		});
+		return _status;
 	}, [provider]);
 
 	React.useEffect((): void => {

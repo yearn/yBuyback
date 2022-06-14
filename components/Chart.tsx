@@ -67,7 +67,7 @@ const htmlLegendPlugin = {
   
 			// Text
 			const textContainer = document.createElement('p');
-			textContainer.className = 'text-primary font-bold text-sm';
+			textContainer.className = 'text-accent-500 font-bold text-sm';
 			textContainer.style.margin = '0px';
 			textContainer.style.padding = '0px';
 			textContainer.style.textDecoration = item.hidden ? 'line-through' : '';

@@ -7,10 +7,10 @@ function	DisclaimerPage(): ReactElement {
 		<div className={'mx-auto w-full max-w-6xl'}>
 			<div className={'p-6 bg-white'}>
 				<div className={'flex flex-row justify-between pb-6 w-full'}>
-					<h3 className={'text-base font-bold transition-colors hover:text-typo-primary-variant'}>{'Disclaimer'}</h3>
+					<h3 className={'text-base font-bold transition-colors hover:text-neutral-500'}>{'Disclaimer'}</h3>
 					<Link href={'/'}>
 						<div>
-							<Cross className={'w-6 h-6 cursor-pointer text-gray-blue-2'} />
+							<Cross className={'w-6 h-6 cursor-pointer text-neutral-400'} />
 						</div>
 					</Link>
 				</div>
@@ -48,9 +48,9 @@ function	DisclaimerPage(): ReactElement {
 							{'Please, bear this fact in mind when using this website, and do not use Yearn, the Yearn vaults, the Iron Bank or any other system described on this website without a sufficient understanding of their unique risks and how they differ from traditional financial transactions. '}
 						</i>
 						{'The only way to fully understand such risks is to have a strong understanding of the relevant technical systems and the incentive design mechanisms they embody–we strongly encourage you to review Yearn"s technical '}
-						<a href={'https://docs.yearn.finance'} target={'_blank'} rel={'noreferrer'} className={'text-typo-primary-variant link'}>{'documentation'}</a>
+						<a href={'https://docs.yearn.finance'} target={'_blank'} rel={'noreferrer'} className={'text-neutral-500 link'}>{'documentation'}</a>
 						{' and '}
-						<a href={'https://github.com/yearn/'} target={'_blank'} rel={'noreferrer'} className={'text-typo-primary-variant link'}>{'code'}</a>
+						<a href={'https://github.com/yearn/'} target={'_blank'} rel={'noreferrer'} className={'text-neutral-500 link'}>{'code'}</a>
 						{' before use.'}
 					</p>
 				</div>
