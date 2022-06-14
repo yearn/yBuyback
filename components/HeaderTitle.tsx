@@ -5,12 +5,12 @@ function	HeaderTitle(): ReactElement {
 	return (
 		<div className={'justify-between w-full flex-row-center'}>
 			<div className={'hidden flex-row items-center md:flex'}>
-				<h1 className={'mr-2 md:mr-4 text-typo-primary'}>
+				<h1 className={'mr-2 md:mr-4 text-neutral-700'}>
 					{'YFI Buyback'}
 				</h1>
 			</div>
 			<div className={'flex flex-col md:hidden'}>
-				<h1 className={'mr-2 md:mr-4 text-typo-primary'}>
+				<h1 className={'mr-2 md:mr-4 text-neutral-700'}>
 					{'YFI Buyback'}
 				</h1>
 			</div>

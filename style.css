@@ -1,16 +1,13 @@
 /* This will load Tailwindcss + all the overwrite from Yearn lib */
 @import '@yearn-finance/web-lib/dist/style.css';
 
-textarea::placeholder {@apply not-italic}
-input::placeholder {@apply not-italic}
-
 /* 🔵 - Yearn Finance ******************************************************
 ** Buyback specific
 **************************************************************************/
 .md-adapted-height {height: calc(100vh - 54px);}
 .row-3 {@apply flex col-span-3;}
 .row-4 {@apply flex col-span-4;}
-.cell-right {@apply tabular-nums text-right text-typo-primary;}
+.cell-right {@apply tabular-nums text-right text-neutral-700;}
 
 @screen md {
 	.md-adapted-height {@apply h-full;}

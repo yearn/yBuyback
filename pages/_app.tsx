@@ -81,9 +81,9 @@ function	AppWrapper(props: AppProps): ReactElement {
 					{...pageProps} />
 			</main>
 			<Footer>
-				<p className={'text-xs text-typo-secondary'}>
+				<p className={'text-xs text-neutral-500'}>
 					{'Data provided by '}
-					<a href={'https://www.yfistats.com/'} target={'_blank'} rel={'noreferrer'} className={'text-typo-primary-variant'}>
+					<a href={'https://www.yfistats.com/'} target={'_blank'} rel={'noreferrer'} className={'text-accent-600'}>
 						{'yfistats'}
 					</a>
 				</p>
@@ -97,7 +97,11 @@ function	MyApp(props: AppProps): ReactElement {
 	const	{Component, pageProps} = props;
 
 	return (
-		<WithYearn>
+		<WithYearn options={{
+			ui: {
+				shouldUseThemes: true
+			}
+		}}>
 			<BuybackContextApp>
 				<AppWrapper
 					Component={Component}
