@@ -7,7 +7,7 @@ import	CountUp								from	'react-countup';
 import	{LinkOut}							from	'@yearn-finance/web-lib/icons';
 import	{Card, Button}						from	'@yearn-finance/web-lib/components';
 import	{List}								from	'@yearn-finance/web-lib/layouts';
-import	{format, providers}							from	'@yearn-finance/web-lib/utils';
+import	{format}							from	'@yearn-finance/web-lib/utils';
 import	{usePrices, useWeb3}				from	'@yearn-finance/web-lib/contexts';
 import	LogoYearn							from	'components/icons/LogoYearn';
 import	Input								from	'components/Input';
@@ -197,10 +197,10 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 	const	[totalInfo, set_totalInfo] = React.useState({yfiAmount: 0, usdValue: 0, loaded: false});
 	const	[userBalanceOfDai, set_userBalanceOfDai] = React.useState(ethers.constants.Zero);
 	const	[userBalanceOfYfi, set_userBalanceOfYfi] = React.useState(ethers.constants.Zero);
-	const	[streamUnlocked, set_streamUnlocked] = React.useState(0);
 	const	[txStatusApprove, set_txStatusApprove] = React.useState(defaultTxStatus);
 	const	[txStatusSell, set_txStatusSell] = React.useState(defaultTxStatus);
 	const	[amount, set_amount] = React.useState('');
+	const	[streamDelta, set_streamDelta] = React.useState(0);
 	const	isGraphReady = !(!sortedData || sortedData.length === 0);
 
 	React.useEffect((): void => {
@@ -304,23 +304,19 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 
 	React.useEffect((): (() => void) => {
 		const	interval = setInterval(async (): Promise<void> => {
-			const	currentProvider = provider || providers.getProvider(1);
-			const	[block] = await Promise.all([
-				currentProvider.getBlock(),
-				getStatus()
-			]);
-			const	start = status.streamToStart;
-			const	ratePerSecond = format.units(status.rate, 21);
-			const	now = block.timestamp;
-			const	timeSinceStart = now - start;
-			const	amountSinceStart = timeSinceStart * format.toSafeValue(ratePerSecond);
-
-			set_streamUnlocked(amountSinceStart);
+			const	_status = await getStatus();
+			const	rate = format.toSafeValue(format.units(_status.rate, 20));
+			const	currentTime = _status.currentTime;
+			const	now = Math.floor(new Date().valueOf() / 1000);
+			set_streamDelta((now - currentTime) * rate);
 		}, 1000);
 		return (): void => {
 			clearInterval(interval);
 		};
 	}, [status, provider]);
+
+	const formatDAI = React.useCallback((n: number): string => `${format.amount(n, 2, 2)} DAI`, []);
+	const formatYFI = React.useCallback((n: number): string => `${format.amount(n, 5, 5)} YFI`, []);
 
 	return (
 		<div className={'grid grid-cols-12 gap-4'}>
@@ -343,22 +339,27 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 					<div>
 						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'Our piggybank has'}</p>
 						<b className={'text-lg tabular-nums md:text-xl'}>
-							{!status.loaded ? '-' : <CountUp
+							{!status.loaded ? '- DAI' : <CountUp
 								preserveValue
 								decimals={2}
-								duration={5}
-								suffix={' DAI'}
-								end={format.toNormalizedValue(status.balanceOfDai) + streamUnlocked} />}
+								duration={2}
+								formattingFn={formatDAI}
+								end={format.toNormalizedValue(status.balanceOfDai) + streamDelta} />}
 						</b>
-						<p className={'pt-0.5 text-xs text-[#7F8DA9]'}>
+						<p className={'pt-0.5 text-sm text-[#7F8DA9]'}>
 							{status.loaded && status.rate && !status.rate.isZero() ? `+ ${format.amount(status.streamPerMonth, 2, 2)} DAI/month` : ''}
 						</p>
 					</div>
 					<div>
 						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'We\'ll buy each YFI for'}</p>
-						<b className={'text-lg md:text-xl'}>{`${!status.loaded ? '- DAI' : (
-							format.amount(format.toNormalizedValue(status.price, 18), 2, 2)
-						)} DAI`}</b>
+						<b className={'text-lg tabular-nums md:text-xl'}>
+							{!status.loaded ? '- DAI' : <CountUp
+								preserveValue
+								decimals={2}
+								duration={2}
+								formattingFn={formatDAI}
+								end={format.toNormalizedValue(status.price)} />}
+						</b>
 					</div>
 					<div>
 						<p className={'pb-1 md:pb-2 text-typo-secondary'}>{'You can sell us max'}</p>
@@ -366,8 +367,8 @@ function	Index({data}: {data: TData[]}): ReactElement | null {
 							{!status.loaded ? '- YFI' : <CountUp 
 								preserveValue
 								decimals={5}
-								duration={5}
-								suffix={' YFI'}
+								duration={2}
+								formattingFn={formatYFI}
 								end={format.toNormalizedValue(status.maxAmount)} />}
 						</b>
 					</div>
