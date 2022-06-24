@@ -148,11 +148,13 @@ function	RowFooter({data}: {data: TData[]}): ReactElement {
 	}
 
 	function	computeAvegagePrice(): number {
-		let	sum = 0;
+		let	sumUSD = 0;
+		let	sumYFI = 0;
 		for (const element of data) {
-			sum += element.usdValue / element.yfiAmount;
+			sumUSD += element.usdValue;
+			sumYFI += element.yfiAmount;
 		}
-		return sum / data.length;
+		return sumUSD / sumYFI;
 	}
 
 	return (
