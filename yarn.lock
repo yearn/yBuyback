@@ -2175,7 +2175,7 @@ core-util-is@~1.0.0:
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.3.tgz#a6042d3634c2b27e9328f837b965fac83808db85"
   integrity sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==
 
-countup.js@^2.1.0:
+countup.js@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/countup.js/-/countup.js-2.2.0.tgz#e20e247abf801190056c5eeed51ceb13cef6ea0c"
   integrity sha512-m0TvFNXm9/eFqJm+QiKVI8e0wRUHzlQSewz9dqVjlhl2DFoZtceLbomwzxHz0hJ1+r4zBC7wSpR/TpthG49h6g==
@@ -4419,12 +4419,12 @@ react-chartjs-2@^4.2.0:
   resolved "https://registry.yarnpkg.com/react-chartjs-2/-/react-chartjs-2-4.2.0.tgz#bc5693a8b161f125301cf28ab0fe980d7dce54aa"
   integrity sha512-9Vm9Sg9XAKiR579/FnBkesofjW9goaaFLfS7XlGTzUJlWFZGSE6A/pBI6+i/bP3pobKZoFcWJdFnjShytToqXw==
 
-react-countup@^6.2.0:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/react-countup/-/react-countup-6.2.0.tgz#091ef28874c5bd11fb713b98c56dd2093a80a932"
-  integrity sha512-3WOKAQpWgjyFoH231SHEpIpHhDGb5g5EkTppM6T7vLa3X+8WMdw6750vVcY0wxysKiY00gTFhDwSB5qLU+xPZA==
+react-countup@^6.3.0:
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/react-countup/-/react-countup-6.3.0.tgz#9a345674d571f76c1046a0ded89fc86dbe52a2f0"
+  integrity sha512-uZsE+kuisXp/3OZeAuq2lzp6sXKmzw331Et5CRy4ueR9VcOp7z7T6/O1F04BC2Pa2frKmIITsghi3Hh933qWXQ==
   dependencies:
-    countup.js "^2.1.0"
+    countup.js "^2.2.0"
 
 react-dom@^18.1.0:
   version "18.1.0"
