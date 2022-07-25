@@ -8,6 +8,8 @@ import	{
 	SocialDiscord,
 	SocialMedium
 }									from	'@yearn-finance/web-lib/icons';
+import	meta						from	'public/manifest.json';
+
 
 function	Footer({children}: {children: ReactElement}): ReactElement {
 	const	{theme, switchTheme} = useUI();
@@ -35,7 +37,7 @@ function	Footer({children}: {children: ReactElement}): ReactElement {
 				</a>
 			</div>
 			<div className={'px-2 transition-colors cursor-pointer text-neutral-500 hover:text-accent-500'}>
-				<a href={process.env.PROJECT_GITHUB_URL} target={'_blank'} rel={'noreferrer'}>
+				<a href={meta.github} target={'_blank'} rel={'noreferrer'}>
 					<SocialGithub className={'w-5 h-5'} />
 				</a>
 			</div>
