@@ -20,6 +20,8 @@ import	{Transaction, defaultTxStatus}		from	'utils/tx';
 import	{approveERC20}						from	'utils/actions/approveToken';
 import	{sell}								from	'utils/actions/sell';
 import	{sortByKey, sum, toSafeDate}		from	'utils';
+import useSWR from 'swr';
+import axios from 'axios';
 
 type		TRowElement = {
 	data: any,
@@ -34,6 +36,10 @@ type		TGraphDataElement = {
 type		TGraphData = {
 	[key: string]: TGraphDataElement
 }
+
+const fetcher = async (): Promise<{data: number}> => (
+	axios.get('https://ydaemon.yearn.finance/1/prices/0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e?humanized=true')
+);
 
 function	RowElement({data, index, tokenPrice}: TRowElement): ReactElement {
 	return (
@@ -56,7 +62,7 @@ function	RowElement({data, index, tokenPrice}: TRowElement): ReactElement {
 			</div>
 			<div className={'min-w-36 cell-end row-4'}>
 				<div className={'cell-right'}>
-					{`$ ${format.amount(tokenPrice - (data.usdValue / data.yfiAmount))}`}
+					{`$ ${format.amount(Number(tokenPrice) - (data.usdValue / data.yfiAmount))}`}
 				</div>
 			</div>
 			<div className={'items-center min-w-32 row-4'}>
@@ -75,19 +81,14 @@ function	RowElement({data, index, tokenPrice}: TRowElement): ReactElement {
 }
 
 const		RowsWrapper = React.memo(function RowsWrapper({sortedData}: any): ReactElement {
-	const	{prices} = usePrices();
-	const	[tokenPrice, set_tokenPrice] = React.useState(0);
-
-	React.useEffect((): void => {
-		set_tokenPrice(Number(prices?.['yearn-finance']?.usd || 0));
-	}, [prices]);
+	const	{data: prices} = useSWR('0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e', fetcher);
 
 	return (
 		<div className={'overflow-scroll w-[1200px] adapted-height scrollbar-none'}>
 			<List.Animated>
 				{sortedData?.map((row: any, index: number): ReactElement => (
 					<div key={row.id}>
-						<RowElement data={row} index={index} tokenPrice={tokenPrice} />
+						<RowElement data={row} index={index} tokenPrice={prices?.data || 0} />
 					</div>
 				))}
 			</List.Animated>
