@@ -117,15 +117,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			}
 
 			const point = quote?.prices?.[0];
-			const price = Number(point?.price);
-			if (!point || !Number.isFinite(price) || price < 0) {
+			if (!point || typeof point.price !== 'number' || !Number.isFinite(point.price) || point.price < 0) {
 				missing.push(coin);
 				continue;
 			}
-			prices[coin] = price;
+			prices[coin] = point.price;
 
-			const timestamp = Number(point.timestamp);
-			if (Number.isFinite(timestamp) && Date.now() / 1000 - timestamp > MAX_PRICE_AGE_SECONDS) {
+			const timestamp = point.timestamp;
+			if (
+				typeof timestamp !== 'number' ||
+				!Number.isFinite(timestamp) ||
+				timestamp <= 0 ||
+				Date.now() / 1000 - timestamp > MAX_PRICE_AGE_SECONDS
+			) {
 				stale.push(coin);
 			}
 		}

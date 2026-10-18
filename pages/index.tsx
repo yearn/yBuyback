@@ -113,7 +113,7 @@ const		RowsWrapper = React.memo(function RowsWrapper({sortedData}: any): ReactEl
 			<List.Animated>
 				{sortedData?.map((row: any, index: number): ReactElement => (
 					<div key={row.id}>
-						<RowElement data={row} index={index} tokenPrice={prices?.data} />
+						<RowElement data={row} index={index} tokenPrice={priceError ? undefined : prices?.data} />
 					</div>
 				))}
 			</List.Animated>
