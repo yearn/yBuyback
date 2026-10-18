@@ -41,10 +41,10 @@ const fetcher = async (): Promise<{data: number}> => {
 	const coins = encodeURIComponent(JSON.stringify([YFI_PRICE_KEY]));
 	const response = await fetch(`/api/prices/spot?coins=${coins}`);
 	const payload = await response.json() as {
-		prices?: Record<string, number>;
+		prices?: {[key: string]: number};
 		missing?: string[];
 		stale?: string[];
-		errors?: Record<string, {message?: string}>;
+		errors?: {[key: string]: {message?: string}};
 		error?: string | {message?: string};
 	};
 	if (!response.ok) {
