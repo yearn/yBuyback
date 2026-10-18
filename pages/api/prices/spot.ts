@@ -134,7 +134,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			}
 		}
 
-		setCacheHeaders(res, missing.length === 0 && Object.keys(errors).length === 0);
+		setCacheHeaders(res, missing.length === 0 && stale.length === 0 && Object.keys(errors).length === 0);
 		res.status(200).json({prices, missing, stale, errors});
 	} catch {
 		setCacheHeaders(res, false);
