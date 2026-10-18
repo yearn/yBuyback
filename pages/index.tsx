@@ -21,12 +21,11 @@ import {approveERC20} from 'utils/actions/approveToken';
 import {sell} from 'utils/actions/sell';
 import {sortByKey, sum, toSafeDate} from 'utils';
 import useSWR from 'swr';
-import axios from 'axios';
 
 type		TRowElement = {
 	data: any,
 	index: number,
-	tokenPrice: number
+	tokenPrice?: number
 }
 type		TGraphDataElement = {
 	datePeriod: string;
@@ -37,9 +36,30 @@ type		TGraphData = {
 	[key: string]: TGraphDataElement
 }
 
-const fetcher = async (): Promise<{data: number}> => (
-	axios.get('https://ydaemon.yearn.finance/1/prices/0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e?humanized=true')
-);
+const YFI_PRICE_KEY = 'ethereum:0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e';
+const fetcher = async (): Promise<{data: number}> => {
+	const coins = encodeURIComponent(JSON.stringify([YFI_PRICE_KEY]));
+	const response = await fetch(`/api/prices/spot?coins=${coins}`);
+	const payload = await response.json() as {
+		prices?: Record<string, number>;
+		missing?: string[];
+		stale?: string[];
+		errors?: Record<string, {message?: string}>;
+		error?: string | {message?: string};
+	};
+	if (!response.ok) {
+		const message = typeof payload.error === 'string' ? payload.error : payload.error?.message;
+		throw new Error(message || `Price Service request failed (${response.status})`);
+	}
+	if (payload.errors?.[YFI_PRICE_KEY]) {
+		throw new Error(payload.errors[YFI_PRICE_KEY].message || 'YFI price is unavailable');
+	}
+	const price = payload.prices?.[YFI_PRICE_KEY];
+	if (payload.missing?.includes(YFI_PRICE_KEY) || payload.stale?.includes(YFI_PRICE_KEY) || price === undefined) {
+		throw new Error('YFI price is missing or stale');
+	}
+	return {data: price};
+};
 
 function	RowElement({data, index, tokenPrice}: TRowElement): ReactElement {
 	return (
@@ -62,7 +82,7 @@ function	RowElement({data, index, tokenPrice}: TRowElement): ReactElement {
 			</div>
 			<div className={'min-w-36 cell-end row-4'}>
 				<div className={'cell-right'}>
-					{`$ ${format.amount(Number(tokenPrice) - (data.usdValue / data.yfiAmount))}`}
+					{tokenPrice === undefined ? '-' : `$ ${format.amount(tokenPrice - (data.usdValue / data.yfiAmount))}`}
 				</div>
 			</div>
 			<div className={'items-center min-w-32 row-4'}>
@@ -81,14 +101,19 @@ function	RowElement({data, index, tokenPrice}: TRowElement): ReactElement {
 }
 
 const		RowsWrapper = React.memo(function RowsWrapper({sortedData}: any): ReactElement {
-	const	{data: prices} = useSWR('0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e', fetcher);
+	const	{data: prices, error: priceError} = useSWR(YFI_PRICE_KEY, fetcher);
 
 	return (
 		<div className={'overflow-scroll w-[1200px] adapted-height scrollbar-none'}>
+			{priceError && (
+				<p role={'alert'} className={'mb-3 rounded bg-red-100 px-3 py-2 text-sm text-red-900'}>
+					{'YFI price is unavailable or stale. USD price comparisons are hidden until a current quote is available.'}
+				</p>
+			)}
 			<List.Animated>
 				{sortedData?.map((row: any, index: number): ReactElement => (
 					<div key={row.id}>
-						<RowElement data={row} index={index} tokenPrice={prices?.data || 0} />
+						<RowElement data={row} index={index} tokenPrice={prices?.data} />
 					</div>
 				))}
 			</List.Animated>
